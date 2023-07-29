@@ -31,6 +31,7 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
 
+#app = QApplication(sys.argv)
 
 class CoolInMemoryTextEditor(QMainWindow):
     def __init__(self):
@@ -223,8 +224,6 @@ class CoolInMemoryTextEditor(QMainWindow):
         #print("Text in memory:")
         #print(text)
         return text
-
-#
 
     def confirm_exit(self):
         reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to exit?")
@@ -514,10 +513,15 @@ def decrypt_var_data(encrypted_data, password):
     return decrypted_data.decode()
 #################################################################
 def start_magic_memory_mark_editor():
-    app = QApplication(sys.argv)
+    global app
+    #app = QApplication(sys.argv)
+    if not app:
+        app = QApplication(sys.argv)
     editor = CoolInMemoryTextEditor()
     editor.show()
     app.exec_()
+    app.quit()
+    #app = None
     return editor
 
 def create_entry():
@@ -584,9 +588,11 @@ def get_md_files_recursively(directory="."):
         md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc")])
     return md_files
 
-
 def editmode_magic_memory_mark_editor(bytes_data_to_str):
-    app = QApplication(sys.argv)
+    global app
+    #app = QApplication(sys.argv)
+    if not app:
+        app = QApplication(sys.argv)
     editor = CoolInMemoryTextEditor()
     editor.var_to_editor(bytes_data_to_str)
     editor.show()
@@ -715,7 +721,10 @@ def view_mode_gui():
             root.destroy()
             root.mainloop()
 
-            app = QApplication(sys.argv)
+            global app
+            #app = QApplication(sys.argv)
+            if not app:
+                app = QApplication(sys.argv)
             editor = CoolInMemoryTextEditor()
             editor.var_to_editor(bytes_data_to_str)
             editor.show()
@@ -741,7 +750,7 @@ def commit_to_git():
 def first_time_welcome_screen():
     print("Welcome to the program for the first time!")
     first_time_message = "Your password is correct."
-    passwd = input("Lets set out passowd do not forget your password you cant recover! Remove passwd.txt file to reset\n Please set your password: ")
+    passwd = input("Welcome to the Git-backed-diary application!\n\nFor security reasons, please set a strong password for your diary. Keep in mind that once set, the password cannot be recovered, so make sure to remember it. If you ever wish to reset the password, delete the 'passwd.txt' file and create a new one. Keep your password safe and secure as it will protect your diary entries from unauthorized access.\n\nPlease enter your password:  ")
     with open(".passwd.txt", 'w') as file:
         file.write("\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n")
     with open(".passwd_test.txt", 'w') as file:
@@ -796,5 +805,6 @@ def main():
             print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
-
+    global app
+    app = None
     main()
