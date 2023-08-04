@@ -25,9 +25,9 @@ from PySide2.QtGui import QTextCharFormat
 
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import filedialog
 from tkinter import simpledialog
-
+from tkinter import filedialog, messagebox
+from tkinter import scrolledtext
 import hashlib
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
@@ -75,6 +75,9 @@ class CoolInMemoryTextEditor(QMainWindow):
         self.save_action = QAction(QIcon.fromTheme("document-save"), "Save", self)
         self.save_action.triggered.connect(self.save_text)
         self.save_action.setShortcut(QKeySequence.Save)
+        self.save_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
+
+        #self.save_action.setShortcut(QKeySequence.Save)
         self.save_action.triggered.connect(self.confirm_save_exit)
         self.save_action.setShortcut(QKeySequence.Quit)
         #self.toolbar.addAction(self.exit_action)
@@ -592,13 +595,6 @@ def create_entry():
     #else:
     #    print("your file is not encrypt!")
     '''
-
-def get_md_files_recursively(directory="."):
-    md_files = []
-    for root, _, files in os.walk(directory):
-        md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc")])
-    return md_files
-
 def editmode_magic_memory_mark_editor(bytes_data_to_str):
     global app
     #app = QApplication(sys.argv)
@@ -610,61 +606,92 @@ def editmode_magic_memory_mark_editor(bytes_data_to_str):
     app.exec_()
     return editor
 
+
+def get_md_files_recursively(directory="."):
+    md_files = []
+    for root, _, files in os.walk(directory):
+        md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc")])
+    return md_files
+
+def choose_file(md_files):
+    choose_root = tk.Tk()
+    choose_root.title("Select File")
+    choose_root.geometry("700x700")
+    scrollbar = tk.Scrollbar(choose_root)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+    listbox = tk.Listbox(choose_root, width=80, height=30, yscrollcommand=scrollbar.set)  # Adjust width and height as needed
+
+    #listbox = tk.Listbox(choose_root)
+    listbox.pack()
+
+    scrollbar.config(command=listbox.yview)
+
+    for idx, file in enumerate(md_files, start=1):
+        listbox.insert(idx, file)
+
+    tk.Button(choose_root, text="Select", command=choose_root.quit).pack()
+
+    choose_root.mainloop()
+
+    choice = listbox.curselection()
+
+    if not choice:
+        choose_root.destroy()
+        return None
+
+    selected_file = md_files[choice[0]]
+    choose_root.destroy()
+    return selected_file
+
+
 def edit_mode():
     md_files = get_md_files_recursively()
 
     if not md_files:
         print("No .enc files found in the current directory or its subdirectories.")
         return
+    else:
 
-    print("Select a file to edit:")
-    for idx, file in enumerate(md_files, start=1):
-        print(f"{idx}. {file}")
+        selected_file = choose_file(md_files)
+        if selected_file:
+            temp_decrypted_file = ".tmp_decrypted.txt"
+            copy_file(selected_file, temp_decrypted_file)
+            # Other code to continue with file editing
 
-    try:
-        choice = int(input("Enter the number of the file you want to edit (0 to cancel): "))
-        if choice == 0:
-            return
-        selected_file = md_files[choice - 1]
-        ##########
-        temp_decrypted_file = ".tmp_decrypted.txt"
-        copy_file(selected_file, temp_decrypted_file)
-        #decrypt_file(temp_decrypted_file, password)
 
-        with open(temp_decrypted_file, "rb") as file:
-            bytes_data = file.read()
-        bytes_data_to_str = decrypt_var_data(bytes_data, password)
+            with open(temp_decrypted_file, "rb") as file:
+                bytes_data = file.read()
+            bytes_data_to_str = decrypt_var_data(bytes_data, password)
 
-        print(bytes_data_to_str) # read file
+            print(bytes_data_to_str) # read file
 
-        the_note = editmode_magic_memory_mark_editor(bytes_data_to_str)
-        the_saved_text = the_note.save_text()
+            the_note = editmode_magic_memory_mark_editor(bytes_data_to_str)
+            the_saved_text = the_note.save_text()
         #print(the_note)
-        print(the_saved_text)
+            print(the_saved_text)
 
-#########################################################################
+            now = datetime.now()
+            last_modified_date = now.strftime("%Y-%m-%d %H:%M:%S")
+            total_string = f"\n\nLast modified: {last_modified_date}\n"
 
-        now = datetime.now()
-        last_modified_date = now.strftime("%Y-%m-%d %H:%M:%S")
-        total_string = f"\n\nLast modified: {last_modified_date}\n"
+            total_note = f"{the_saved_text} {total_string}"
 
-        total_note = f"{the_saved_text} {total_string}"
 
-        print("_+++++++++++++++++++++++")
-        print(total_note)
-        enc_note = encrypt_var_data(total_note, password)
-        print(enc_note)
-        print("_+++++++++++++++++++++++=============")
-        with open(temp_decrypted_file, "wb") as file: # error
-        #file.write(f"Date: {entry_date}\nTime: {entry_time}\n\n".encode())
-            file.write(enc_note)
-        print(f"Diary entry saved to {temp_decrypted_file}")
-        copy_file(temp_decrypted_file, selected_file)
-        secure_delete_file(temp_decrypted_file)
-        print(f"File '{selected_file}' edited and saved.")
+            print(total_note)
+            enc_note = encrypt_var_data(total_note, password)
+            print(enc_note)
 
-    except (ValueError, IndexError):
-        print("Invalid choice. Please try again.")
+            with open(temp_decrypted_file, "wb") as file: # error
+            #file.write(f"Date: {entry_date}\nTime: {entry_time}\n\n".encode())
+                file.write(enc_note)
+            print(f"Diary entry saved to {temp_decrypted_file}")
+            copy_file(temp_decrypted_file, selected_file)
+            secure_delete_file(temp_decrypted_file)
+            print(f"File '{selected_file}' edited and saved.")
+
+        #except (ValueError, IndexError):
+        #    print("Invalid choice. Please try again.")
 '''
         enc_note = encrypt_var_data(join_date_and_note, password)  # Encode the string before encryption
         with open(entry_file_path, "wb") as file: # error
