@@ -398,11 +398,7 @@ def copy_file(source_file, destination_file): # binary mode
         print(f"An error occurred while copying the file: {e}")
 
 
-def print_file_content(filename): # do less
-    try:
-        subprocess.run(['less', filename], check=True)
-    except subprocess.CalledProcessError:
-        print(f"Error: File '{filename}' not found or unable to read.")
+
 def view_mode_less():
     md_files = get_md_files_recursively()
 
@@ -426,9 +422,15 @@ def view_mode_less():
             source_filename = selected_file
             destination_filename = '.tmp.txt'
             copy_file(source_filename, destination_filename)
-            decrypt_file(destination_filename, password)
-            print_file_content(destination_filename)
-            # subprocess.run(["less", destination_filename])
+            ###
+            binary_data = None
+
+            with open(destination_filename, 'rb') as binary_file:
+                binary_data = binary_file.read()
+            decrypt_data = decrypt_var_data(binary_data, password)
+            p = subprocess.Popen(["less"], stdin=subprocess.PIPE)
+            p.communicate(input=decrypt_data.encode())
+
             file_to_delete = ".tmp.txt"
             secure_delete_file(file_to_delete)
 
@@ -456,8 +458,6 @@ def decrypt_file(filename, password):
 
     with open(filename, 'wb') as file:
         file.write(decrypted_data)
-
-
 
 def pad(data, block_size):
     padding = block_size - len(data) % block_size
@@ -750,13 +750,14 @@ def stop_code():
 
 def input_pass_now(wel_root):
     wel_root.destroy()
-    #entered_password = simpledialog.askstring("Enter Password", "Please enter your password:")
     passwd = input_password_using_tkinter()
-    with open(".passwd.txt", 'w') as file:
-        file.write("\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n")
-    with open(".passwd_test.txt", 'w') as file:
-        pass
-    encrypt_file(".passwd.txt", passwd)
+    lock = ("\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n")
+    enc_note = encrypt_var_data(lock, passwd)
+
+
+    with open(".passwd.txt", 'wb') as file:
+        file.write(enc_note)
+
 
     wel_roott = tk.Tk()
     wel_roott.title("Git-backed-diary Password Verification")
