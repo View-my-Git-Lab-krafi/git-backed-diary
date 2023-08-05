@@ -459,13 +459,13 @@ def decrypt_file(filename, password):
     with open(filename, 'wb') as file:
         file.write(decrypted_data)
 
-def pad(data, block_size):
-    padding = block_size - len(data) % block_size
-    return data + bytes([padding] * padding)
-
 def unpad(data):
     padding = data[-1]
     return data[:-padding]
+
+def pad(data, block_size):
+    padding = block_size - len(data) % block_size
+    return data + bytes([padding] * padding)
 
 def encrypt_file(filename, password):
     block_size = 16
@@ -808,14 +808,13 @@ def main():
     password = input_password_using_tkinter()
     print("\n")
     copy_file(".passwd.txt", ".passwd_test.txt")
-    decrypt_file('.passwd_test.txt', password)
+    with open(".passwd_test.txt", 'rb') as file:
+        encrypted_data = file.read()
 
     try:
-        with open(".passwd_test.txt", 'r', encoding='utf-8') as file:
-            content = ""
-            for line in file:
-                content += line
-
+        decrypted_content = decrypt_var_data(encrypted_data, password)
+        content = decrypted_content
+        #print(content)
 
         def close_window():
             pass_suc.destroy()
