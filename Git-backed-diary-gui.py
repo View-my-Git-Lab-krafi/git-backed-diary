@@ -35,7 +35,7 @@ from Crypto.Util.Padding import pad
 
 #app = QApplication(sys.argv)
 
-class CoolInMemoryTextEditor(QMainWindow):
+class Magic_Memory_Mark_TextEditor(QMainWindow):
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -381,7 +381,7 @@ def secure_delete_file(filename, passes=9):
                 f.seek(0)
                 f.write(os.urandom(file_size))
         os.remove(filename)
-        print(f"File '{filename}' securely deleted.")
+        #print(f"File '{filename}' securely deleted.")
     except FileNotFoundError:
         print(f"temp file not found, You are safe.")
 
@@ -522,7 +522,7 @@ def start_magic_memory_mark_editor():
     #app = QApplication(sys.argv)
     if not app:
         app = QApplication(sys.argv)
-    editor = CoolInMemoryTextEditor()
+    editor = Magic_Memory_Mark_TextEditor()
     editor.show()
     app.exec_()
     app.quit()
@@ -536,16 +536,12 @@ def create_entry():
     entry_datetime = f"{entry_date} \n{entry_time}\n" # new one
     (f"Date: {entry_date}\nTime: {entry_time}\n\n".encode())
     note = start_magic_memory_mark_editor()
-    print ("=============++++")
     saved_text = note.save_text()
     #print(saved_text)
     #print(type(saved_text)) # str
 
     join_date_and_note = f"{entry_datetime}\n{saved_text}"
-    print(saved_text)
-    print ("=============++++")
-
-
+    #print(saved_text)
 
     rootz = tk.Tk()
     rootz.withdraw()  # Hide the main window
@@ -570,24 +566,13 @@ def create_entry():
         file.write(enc_note)
     print(f"Diary entry saved to {entry_file_path}")
 
-    #editor = os.environ.get("EDITOR", "vim")
-    #subprocess.run([editor, entry_file_path])
-
-    #wana_encrypt = input("Do you want to encrypt the file ? (y/n)").lower()
-    #if ( len(wana_encrypt) == 0 or wana_encrypt == "y"):
-
-
-    #encrypt_file(entry_file_path, password)
-    #source_file = entry_file_path
-    print(type(enc_note))
 
 
 def editmode_magic_memory_mark_editor(bytes_data_to_str):
     global app
-    #app = QApplication(sys.argv)
     if not app:
         app = QApplication(sys.argv)
-    editor = CoolInMemoryTextEditor()
+    editor = Magic_Memory_Mark_TextEditor()
     editor.var_to_editor(bytes_data_to_str)
     editor.show()
     app.exec_()
@@ -611,7 +596,6 @@ def choose_file(md_files):
 
     listbox = tk.Listbox(choose_root, width=80, height=30, yscrollcommand=scrollbar.set)  # Adjust width and height as needed
 
-    #listbox = tk.Listbox(choose_root)
     listbox.pack()
 
     scrollbar.config(command=listbox.yview)
@@ -708,7 +692,7 @@ def view_mode_gui():
             #app = QApplication(sys.argv)
             if not app:
                 app = QApplication(sys.argv)
-            editor = CoolInMemoryTextEditor()
+            editor = Magic_Memory_Mark_TextEditor()
             editor.var_to_editor(bytes_data_to_str)
             editor.show()
             app.exec_()
@@ -723,24 +707,12 @@ def commit_to_git():
     commit_message = input("Enter a commit message for Git:\n")
     subprocess.run(["git", "add", "*.enc"])
     subprocess.run(["git", "commit", "-m", commit_message])
+#    git config --global credential.helper store
+
+    subprocess.run(["git", "config", "--global", "credential.helper", "store"])
     subprocess.run(["git", "push"])
 
     print("Changes committed and pushed to Git repository.")
-def first_time_welcome_screen():
-    print("Welcome to the program for the first time!")
-    first_time_message = "Your password is correct."
-    passwd = input("Welcome to the Git-backed-diary application!\n\nFor security reasons, please set a strong password for your diary. Keep in mind that once set, the password cannot be recovered, so make sure to remember it. If you ever wish to reset the password, delete the 'passwd.txt' file and create a new one. Keep your password safe and secure as it will protect your diary entries from unauthorized access.\n\nPlease enter your password:  ")
-    with open(".passwd.txt", 'w') as file:
-        file.write("\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n")
-    with open(".passwd_test.txt", 'w') as file:
-        pass
-    encrypt_file(".passwd.txt", passwd)
-    print("Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct")
-    print("Now start the program again")
-    exit()
-
-def close_window(window):
-    window.destroy()
 def input_password_using_tkinter():
     roots = tk.Tk()
     roots.title("Personal Diary")
@@ -772,6 +744,57 @@ def input_password_using_tkinter():
     entered_password = password_entry.get()
     close_window(roots)
     return entered_password
+
+def stop_code():
+    exit()
+
+def input_pass_now(wel_root):
+    wel_root.destroy()
+    #entered_password = simpledialog.askstring("Enter Password", "Please enter your password:")
+    passwd = input_password_using_tkinter()
+    with open(".passwd.txt", 'w') as file:
+        file.write("\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n")
+    with open(".passwd_test.txt", 'w') as file:
+        pass
+    encrypt_file(".passwd.txt", passwd)
+
+    wel_roott = tk.Tk()
+    wel_roott.title("Git-backed-diary Password Verification")
+    wel_roott.wm_attributes("-type", "splash")  # WM
+    wel_roott.wm_attributes("-topmost", 1)  # WM
+
+    welcome_label = tk.Label(wel_roott, text="Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct \n Now start the program again! \n thanks")
+    welcome_label.pack()
+
+    start_button = tk.Button(wel_roott, text="close the program", command=stop_code)
+    start_button.pack()
+
+    wel_roott.mainloop()
+
+
+def first_time_welcome_screen():
+
+    wel_root = tk.Tk()
+    wel_root.title("Git-backed-diary Password Verification")
+    wel_root.wm_attributes("-type", "splash")  # WM
+    wel_root.wm_attributes("-topmost", 1)  # WM
+
+    welcome_label = tk.Label(wel_root, text="Welcome to the Git-backed-diary application! \n \n For security reasons, please set a strong password for your diary. \n Keep in mind that once set, the password cannot be recovered, so make sure to remember it. \n If you ever wish to reset the password, delete the 'passwd.txt' file and create a new one. \n Keep your password safe and secure as it will protect your diary entries from unauthorized access.\n\n Please enter your password")
+    welcome_label.pack()
+
+
+    start_button = tk.Button(wel_root, text="ready for input password", command=lambda: input_pass_now(wel_root))
+    start_button.pack()
+
+    wel_root.mainloop()
+
+
+    #print("Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct")
+    #print("Now start the program again")
+
+
+def close_window(window):
+    window.destroy()
 
 
 def main():
