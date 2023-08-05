@@ -581,20 +581,7 @@ def create_entry():
     #source_file = entry_file_path
     print(type(enc_note))
 
-    print("=====================")
-    '''
-    filename = f"{entry_date}-{sanitized_file_name}-enc.md"
-    enc_entry_file_path = os.path.join(month_year_dir, filename)
-    with open(enc_entry_file_path, "w") as file:
-        print("created new enc one")
 
-    destination_file = enc_entry_file_path
-    copy_file(source_file, destination_file)
-    secure_delete_file(entry_file_path)
-    print("File encrypted successfully.")
-    #else:
-    #    print("your file is not encrypt!")
-    '''
 def editmode_magic_memory_mark_editor(bytes_data_to_str):
     global app
     #app = QApplication(sys.argv)
@@ -619,6 +606,8 @@ def choose_file(md_files):
     choose_root.geometry("700x700")
     scrollbar = tk.Scrollbar(choose_root)
     scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    choose_root.wm_attributes("-type", "splash")  # WM
+    choose_root.wm_attributes("-topmost", 1)  # WM
 
     listbox = tk.Listbox(choose_root, width=80, height=30, yscrollcommand=scrollbar.set)  # Adjust width and height as needed
 
@@ -664,12 +653,12 @@ def edit_mode():
                 bytes_data = file.read()
             bytes_data_to_str = decrypt_var_data(bytes_data, password)
 
-            print(bytes_data_to_str) # read file
+            #print(bytes_data_to_str) # read file
 
             the_note = editmode_magic_memory_mark_editor(bytes_data_to_str)
             the_saved_text = the_note.save_text()
-        #print(the_note)
-            print(the_saved_text)
+
+            #print(the_saved_text)
 
             now = datetime.now()
             last_modified_date = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -678,9 +667,9 @@ def edit_mode():
             total_note = f"{the_saved_text} {total_string}"
 
 
-            print(total_note)
+            #print(total_note)
             enc_note = encrypt_var_data(total_note, password)
-            print(enc_note)
+            #print(enc_note)
 
             with open(temp_decrypted_file, "wb") as file: # error
             #file.write(f"Date: {entry_date}\nTime: {entry_time}\n\n".encode())
@@ -690,69 +679,22 @@ def edit_mode():
             secure_delete_file(temp_decrypted_file)
             print(f"File '{selected_file}' edited and saved.")
 
-        #except (ValueError, IndexError):
-        #    print("Invalid choice. Please try again.")
-'''
-        enc_note = encrypt_var_data(join_date_and_note, password)  # Encode the string before encryption
-        with open(entry_file_path, "wb") as file: # error
-        #file.write(f"Date: {entry_date}\nTime: {entry_time}\n\n".encode())
-            file.write(enc_note)
-        print(f"Diary entry saved to {entry_file_path}")
-
-
-        editor = os.environ.get("EDITOR", "vim")
-        subprocess.run([editor, temp_decrypted_file])
-
-        now = datetime.now()
-        last_modified_date = now.strftime("%Y-%m-%d %H:%M:%S")
-        total_string = f"\n\nLast modified: {last_modified_date}\n"
-
-        with open(temp_decrypted_file, "a") as file:
-            file.write(f"{total_string}")
-
-        encrypt_file(temp_decrypted_file, password)
-        copy_file(temp_decrypted_file, selected_file)
-
-        secure_delete_file(temp_decrypted_file)
-
-        print(f"File '{selected_file}' edited and saved.")
-'''
-def show_read_only_warning():
-    warning_message = "Note: You have opened this file in read-only mode. Any attempt to save will not be successful."
-    messagebox.showwarning("Read-Only Mode", warning_message)
-
-
 def view_mode_gui():
     md_files = get_md_files_recursively()
 
     if not md_files:
         print("No .enc files found in the current directory or its subdirectories.")
         return
-
-    md_files.sort()
-
-    print("Select a file to view (gui mode):")
-    for idx, file in enumerate(md_files, start=1):
-        print(f"{idx}. {os.path.basename(file)}")
-
-    try:
-        choice = int(input("Enter the number of the file you want to view (0 to cancel): "))
-        if choice == 0:
-            return
-        if 1 <= choice <= len(md_files):
-            selected_file = md_files[choice - 1]
-
+    else:
+        selected_file = choose_file(md_files)
+        if selected_file:
             source_filename = selected_file
             destination_filename = '.tmp.txt'
             copy_file(source_filename, destination_filename)
-
-            #print_file_content(destination_filename) # do less
-            # subprocess.run(["less", destination_filename])
             with open(destination_filename, "rb") as file:
                 bytes_data = file.read()
-            #decrypt_file(destination_filename, password)
             bytes_data_to_str = decrypt_var_data(bytes_data, password)
-            print(bytes_data_to_str)
+            #print(bytes_data_to_str)
 
             root = tk.Tk()
             root.title("Read-Only Warning")
@@ -762,8 +704,6 @@ def view_mode_gui():
             warning_message = "Note: You have opened this file in read-only mode. Any attempt to save will not be successful."
             messagebox.showwarning("Read-Only Mode", warning_message)
             root.destroy()
-            #root.mainloop()
-
             global app
             #app = QApplication(sys.argv)
             if not app:
@@ -777,11 +717,7 @@ def view_mode_gui():
             file_to_delete = ".tmp.txt"
             secure_delete_file(file_to_delete)
 
-        else:
-            print("Invalid choice. Please try again.")
 
-    except ValueError:
-        print("Invalid input. Please enter a number.")
 
 def commit_to_git():
     commit_message = input("Enter a commit message for Git:\n")
@@ -938,25 +874,7 @@ def main():
             button.pack(side="top")
 
         root.mainloop()
-        '''
-        print("\n1. Create a new diary entry\n2. Commit to Git repository\n3. Edit Mode\n4. view_mode_gui\n5. View Mode (less)\n6. Exit")
-        choice = input("Enter your choice (1/2/3/4/5/6): ")
 
-        if choice == "1":
-            create_entry()
-        elif choice == "2":
-            commit_to_git()
-        elif choice == "3":
-            edit_mode()
-        elif choice == "4":
-            view_mode_gui()
-        elif choice == "5":
-            view_mode_less()
-        elif choice == "6":
-            break
-        else:
-            print("Invalid choice. Please try again.")
-'''
 if __name__ == "__main__":
     global app
     app = None
