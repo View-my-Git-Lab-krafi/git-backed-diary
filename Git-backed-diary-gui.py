@@ -370,7 +370,6 @@ class MarkdownHighlighter(QSyntaxHighlighter):
                 match = it.next()
                 self.setFormat(match.capturedStart(), match.capturedLength(), format)
 
-#################################################################################
 
 
 def secure_delete_file(filename, passes=9):
@@ -439,7 +438,7 @@ def view_mode_less():
 
     except ValueError:
         print("Invalid input. Please enter a number.")
-
+'''
 def decrypt_file(filename, password):
     block_size = 16
     key = hashlib.sha256(password.encode()).digest()
@@ -459,13 +458,7 @@ def decrypt_file(filename, password):
     with open(filename, 'wb') as file:
         file.write(decrypted_data)
 
-def unpad(data):
-    padding = data[-1]
-    return data[:-padding]
 
-def pad(data, block_size):
-    padding = block_size - len(data) % block_size
-    return data + bytes([padding] * padding)
 
 def encrypt_file(filename, password):
     block_size = 16
@@ -481,6 +474,14 @@ def encrypt_file(filename, password):
     with open(filename, 'wb') as file:
         file.write(b'ENCRYPTED:' + iv + encrypted_data)
 
+'''
+def unpad(data):
+    padding = data[-1]
+    return data[:-padding]
+
+def pad(data, block_size):
+    padding = block_size - len(data) % block_size
+    return data + bytes([padding] * padding)
 def encrypt_var_data(data, password):
     block_size = 16
     key = hashlib.sha256(password.encode()).digest()
