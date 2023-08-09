@@ -1,3 +1,6 @@
+#pip install markdown2 pycryptodome PySide2
+
+
 import os
 import io
 import sys
@@ -1190,7 +1193,7 @@ def input_password_using_tkinter():
     return entered_password
 
 def stop_code():
-    exit()
+    sys.exit()
 
 def input_pass_now(wel_root):
     wel_root.destroy()
@@ -1282,7 +1285,7 @@ def main():
                                           "If you want to reset remove .passwd.txt, "
                                           "also remember that you will become unable to access your old notes.\n"
                                           "If you are able to set your old correct password you will able to access your file again")
-        exit()
+        sys.exit()
 
 
     while True:
@@ -1309,7 +1312,7 @@ def main():
                 view_mode_less()
             elif choice == "6":
                 root.quit()
-                exit()
+                sys.exit()
             else:
                 output_label.config(text="Invalid choice. Please try again.")
 
