@@ -1,44 +1,28 @@
 import os
-import subprocess
-from datetime import datetime
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
-import hashlib
-import random
-##############################################
-
-#pip install PySide2 markdown2
-import sys
-import webbrowser
 import io
+import sys
+import random
+import hashlib
+import threading
 import markdown2
+import subprocess
+import webbrowser
 import http.server
 import socketserver
-import threading
-from PySide2 import QtWidgets, QtGui
-from functools import partial
-
-from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QFontComboBox, QToolBar, QMessageBox, QSizePolicy
-
-from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat, QFont, QSyntaxHighlighter, QIcon, QKeyEvent
-
-from PySide2 import QtCore
-from PySide2.QtCore import Qt, QRegularExpression, QPoint
-from PySide2.QtGui import QTextCharFormat
-##
-##
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import simpledialog
-from tkinter import filedialog, messagebox
-from tkinter import scrolledtext
-import hashlib
+from functools import partial
+from datetime import datetime
 from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad
-from PySide2.QtWidgets import QMainWindow, QAction, QToolBar, QLabel, QComboBox, QMenu, QAction, QApplication, QTextEdit, QPushButton
+from PySide2 import QtWidgets, QtGui
+from Crypto.Random import get_random_bytes
+from PySide2 import QtWidgets, QtGui, QtCore
+from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
+from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton
+from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat, QFont, QSyntaxHighlighter, QIcon, QKeyEvent
+from PySide2.QtCore import Qt, QRegularExpression, QPoint
 
-#app = QApplication(sys.argv)
+
 
 class EmojiPicker(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -1295,7 +1279,7 @@ def main():
 
     except UnicodeDecodeError:
         messagebox.showerror("Password Error", "Your password looks incorrect because the file contains non-text (binary) data.\n"
-                                          "If you want to reset remove .passwd_test.txt and .passwd.txt, "
+                                          "If you want to reset remove .passwd.txt, "
                                           "also remember that you will become unable to access your old notes.\n"
                                           "If you are able to set your old correct password you will able to access your file again")
         exit()
@@ -1304,7 +1288,9 @@ def main():
     while True:
 
         file_to_delete = ".tmp.txt"
+        file_to_deletee = ".passwd_test.txt"
         secure_delete_file(file_to_delete)
+        secure_delete_file(file_to_deletee)
         def handle_choice(event):
             choice = event.char
             if choice in ["1", "2", "3", "4", "5", "6"]:
