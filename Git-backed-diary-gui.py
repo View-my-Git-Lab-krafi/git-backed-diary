@@ -22,9 +22,10 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout,
 
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat, QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 
-from PySide2.QtCore import Qt, QRegularExpression
+from PySide2.QtCore import Qt, QRegularExpression, QPoint
 from PySide2.QtGui import QTextCharFormat
-
+##
+##
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import simpledialog
@@ -42,6 +43,9 @@ class EmojiPicker(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Emoji Picker")
+
+        self.dragging = False
+        self.offset = QPoint()
 
         self.categories = {
                 "Smileys": [
@@ -315,6 +319,20 @@ class EmojiPicker(QtWidgets.QWidget):
         self.setLayout(layout)
         self.init_ui()
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = True
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.dragging:
+            new_pos = self.mapToGlobal(event.pos() - self.offset)
+            self.move(new_pos)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.dragging = False
+
     def init_ui(self):
         while self.layout().count() > 0:
             item = self.layout().takeAt(0)
@@ -489,22 +507,6 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         self.decrease_font_action.setShortcut(QKeySequence("Ctrl+-"))
         self.toolbar.addAction(self.decrease_font_action)
 
-        # Add a stretchable space
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.toolbar.addWidget(spacer)
-
-        # Change the Font Family
-        self.font_family_combobox = QFontComboBox(self)
-        self.font_family_combobox.currentFontChanged.connect(self.change_font_family)
-        self.toolbar.addWidget(self.font_family_combobox)
-        self.text_widget.setFontPointSize(18)
-
-# Emoji Button
-        self.emoji_action = QAction(QIcon.fromTheme("smile"), "😊Emoji", self)
-        self.emoji_action.triggered.connect(self.toggle_emoji_picker)
-        self.toolbar.addAction(self.emoji_action)
-
 # Add a stretchable space
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -519,9 +521,6 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         self.emoji_picker = EmojiPicker(parent=self)
         self.emoji_picker.setGeometry(10, 50, 400, 300)
         self.emoji_picker.hide()
-
-
-
 
 
 # Emoji Button
@@ -553,9 +552,20 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         #category_dropdown.currentIndexChanged.connect(self.change_emoji_category)
 
         self.close_button = QtWidgets.QPushButton("❌", self.emoji_picker)
-        self.close_button.setGeometry(150, 150, 30, 30)
+        self.close_button.setGeometry(350, 210, 30, 30)
         self.close_button.setFont(QtGui.QFont("Arial", 18))
         self.close_button.clicked.connect(self.close_emoji_picker)
+        # Add a stretchable space
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.toolbar.addWidget(spacer)
+
+        # Change the Font Family
+        self.font_family_combobox = QFontComboBox(self)
+        self.font_family_combobox.currentFontChanged.connect(self.change_font_family)
+        self.toolbar.addWidget(self.font_family_combobox)
+        self.text_widget.setFontPointSize(18)
+
 
     def toggle_emoji_picker(self):
         if self.emoji_picker.isVisible():
