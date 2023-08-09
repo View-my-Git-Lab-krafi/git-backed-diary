@@ -22,6 +22,7 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout,
 
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat, QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 
+from PySide2 import QtCore
 from PySide2.QtCore import Qt, QRegularExpression, QPoint
 from PySide2.QtGui import QTextCharFormat
 ##
@@ -319,6 +320,21 @@ class EmojiPicker(QtWidgets.QWidget):
         self.setLayout(layout)
         self.init_ui()
 
+    def resize_left(self):
+        new_size = self.size() + QtCore.QSize(-90, 0)
+        self.resize(new_size)
+
+    def resize_right(self):
+        new_size = self.size() + QtCore.QSize(90, 0)
+        self.resize(new_size)
+
+    def resize_top(self):
+        new_size = self.size() + QtCore.QSize(0, -90)
+        self.resize(new_size)
+
+    def resize_bottom(self):
+        new_size = self.size() + QtCore.QSize(0, 90)
+        self.resize(new_size)
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
@@ -347,12 +363,43 @@ class EmojiPicker(QtWidgets.QWidget):
         scroll_area.setWidget(scroll_content)
         self.layout().addWidget(scroll_area)
 
+        # Create floating buttons for resizing in different directions
+        self.resize_left_button = QtWidgets.QPushButton("←", self)
+        self.resize_right_button = QtWidgets.QPushButton("→", self)
+        self.resize_top_button = QtWidgets.QPushButton("↑", self)
+        self.resize_bottom_button = QtWidgets.QPushButton("↓", self)
+
+        # Position the buttons at the appropriate corners
+        emoji_picker_rect = self.rect()
+        button_offset = QtCore.QPoint(-200, 25)
+        button_offsett = QtCore.QPoint(-0, 25)
+        self.resize_left_button.move(emoji_picker_rect.bottomLeft() - button_offsett)
+        self.resize_right_button.move(emoji_picker_rect.bottomRight() - button_offsett)
+        self.resize_top_button.move(emoji_picker_rect.bottomLeft() - button_offset)
+        self.resize_bottom_button.move(emoji_picker_rect.bottomRight() - button_offset)
+
+        # Connect button clicks to resize methods
+        self.resize_left_button.clicked.connect(self.resize_left)
+        self.resize_right_button.clicked.connect(self.resize_right)
+        self.resize_top_button.clicked.connect(self.resize_top)
+        self.resize_bottom_button.clicked.connect(self.resize_bottom)
+
+
         emojis = self.categories[self.current_category]
-        num_columns = 7
+        num_columns = 8
         row, col = 0, 0
         button_size = 30
         emoji_style = f"font-size: {button_size}px;"
         emoji_font_size = button_size - 10
+        blank_space_height = 90
+
+        blank_space = QtWidgets.QWidget()
+        blank_space.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        blank_space.setMaximumHeight(blank_space_height)
+        scroll_layout.addWidget(blank_space, row, col, 3, num_columns)
+
+
+        row += 5
         for emoji in emojis:
             button = QtWidgets.QPushButton(emoji)
             button.setStyleSheet(emoji_style)
@@ -519,7 +566,7 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         self.toolbar.addAction(self.exit_action)
 
         self.emoji_picker = EmojiPicker(parent=self)
-        self.emoji_picker.setGeometry(10, 50, 400, 300)
+        self.emoji_picker.setGeometry(10, 50, 500, 400)
         self.emoji_picker.hide()
 
 
@@ -539,6 +586,8 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         self.category_dropdown_visible = False
 
 
+
+
         #emoji_button = QtWidgets.QPushButton("😊", self)
         #emoji_button.setFont(QtGui.QFont("twemoji", 18))
         #emoji_button.setToolTip("Insert Emoji")
@@ -552,7 +601,9 @@ class Magic_Memory_Mark_TextEditor(QMainWindow):
         #category_dropdown.currentIndexChanged.connect(self.change_emoji_category)
 
         self.close_button = QtWidgets.QPushButton("❌", self.emoji_picker)
-        self.close_button.setGeometry(350, 210, 30, 30)
+
+
+        self.close_button.setGeometry(450, 5, 30, 30)
         self.close_button.setFont(QtGui.QFont("Arial", 18))
         self.close_button.clicked.connect(self.close_emoji_picker)
         # Add a stretchable space
