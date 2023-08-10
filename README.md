@@ -1,5 +1,4 @@
 `pip install markdown2 pycryptodome PySide2 tkinter`
-# this is a diary application that have encrypted feature with single password , also you can use git to backup just set .get at the root of the program . it uses PySide2 
 
 
 ## Git Backed Diary: Where Memories and Security Meet
@@ -39,8 +38,8 @@ Meet your writing companion, Magic Memory Mark. This bewitching text editor, des
 **License: GPL-3.0**
 Git Backed Diary dances under the enchanting moonlight of the GPL-3.0 License. Feel the freedom to mold, remix, and share the magic as you see fit.
 
-_**Are you ready to embark on this journey of memories, security, and creativity? Git Backed Diary welcomes you to a realm where every stroke of your keyboard weaves tales that only you can tell. Let the magic begin. 🌟
-**_
+**Are you ready to embark on this journey of memories, security, and creativity? Git Backed Diary welcomes you to a realm where every stroke of your keyboard weaves tales that only you can tell. Let the magic begin. 🌟
+**
 
 
 
