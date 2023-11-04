@@ -1,5 +1,10 @@
 `pip install markdown2 pycryptodome PySide2 tkinter`
 
+## Update news
+i was trying to rewrite this project to godot to make it cross platform also good UI
+but looks like godot4 need more impruvment to support python correctly
+https://gitlab.com/krafi/magic-memory-mark.git
+https://github.com/touilleMan/godot-python/issues/396
 
 ## Git Backed Diary: Where Memories and Security Meet
 <p>Welcome to Git Backed Diary, your personal haven for memories and musings. This innovative Python application, adorned with the charming powers of PySide2 and the classic elegance of Tkinter, offers you a captivating diary experience like no other.
