@@ -26,10 +26,11 @@ from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextChar
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 from PySide2.QtCore import Qt, QRegularExpression, QPoint
 
+#  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
 from text_editor.VarDataEncryptor import start_var_data_encryptor
-
+from text_editor.markdown_highlighter import MarkdownHighlighter
 
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
@@ -272,134 +273,6 @@ class MagicMemoryMarkTextEditor(QMainWindow):
             self.close()
 
 
-class MarkdownHighlighter(QSyntaxHighlighter):
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.highlighting_rules = []
-
-        # Heading
-        heading_format = QTextCharFormat()
-        heading_format.setFontWeight(QFont.Bold)
-        heading_format.setForeground(Qt.darkMagenta)
-        self.highlighting_rules.append((QRegularExpression(r'^#{1,6}\s.*$'), heading_format))
-
-        # Italic
-        italic_format = QTextCharFormat()
-        italic_format.setFontItalic(True)
-        italic_format.setForeground(Qt.darkGreen)
-        self.highlighting_rules.append((QRegularExpression(r'_(.*?)_'), italic_format))
-        self.highlighting_rules.append((QRegularExpression(r'\*(.*?)\*'), italic_format))
-
-        # Bold
-        bold_format = QTextCharFormat()
-        bold_format.setFontWeight(QFont.Bold)
-        bold_format.setForeground(Qt.darkRed)
-        self.highlighting_rules.append((QRegularExpression(r'__(.*?)__'), bold_format))
-        self.highlighting_rules.append((QRegularExpression(r'\*\*(.*?)\*\*'), bold_format))
-
-        # Strikethrough
-        strikethrough_format = QTextCharFormat()
-        strikethrough_format.setFontStrikeOut(True)
-        strikethrough_format.setForeground(Qt.darkGray)
-        self.highlighting_rules.append((QRegularExpression(r'~~(.*?)~~'), strikethrough_format))
-
-        # Code Block
-        code_block_format = QTextCharFormat()
-        code_block_format.setFontFamily("Courier New")
-        code_block_format.setBackground(Qt.lightGray)
-        self.highlighting_rules.append((QRegularExpression(r'```[\s\S]*?```'), code_block_format))
-
-        # Inline Code
-        inline_code_format = QTextCharFormat()
-        inline_code_format.setFontFamily("Courier New")
-        inline_code_format.setForeground(Qt.darkBlue)
-        self.highlighting_rules.append((QRegularExpression(r'`.*?`'), inline_code_format))
-
-        # Links
-        link_format = QTextCharFormat()
-        link_format.setForeground(Qt.blue)
-        self.highlighting_rules.append((QRegularExpression(r'\[.*?\]\(.*?\)'), link_format))
-
-        # Lists
-        list_format = QTextCharFormat()
-        list_format.setForeground(Qt.darkCyan)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*[-*+]\s.*$'), list_format))
-
-        # Ordered List
-        ordered_list_format = QTextCharFormat()
-        ordered_list_format.setForeground(Qt.darkCyan)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*\d+\.\s.*$'), ordered_list_format))
-
-        # Blockquotes
-        quote_format = QTextCharFormat()
-        quote_format.setForeground(Qt.darkGreen)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*>.*$'), quote_format))
-
-        # Horizontal Rule
-        hr_format = QTextCharFormat()
-        hr_format.setForeground(Qt.darkGray)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*[-*_]{3,}\s*$'), hr_format))
-
-        # Table
-        table_format = QTextCharFormat()
-        table_format.setForeground(Qt.darkYellow)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*(\|.*\|)+\s*$'), table_format))
-
-        # Footnote
-        footnote_format = QTextCharFormat()
-        footnote_format.setForeground(Qt.darkRed)
-        self.highlighting_rules.append((QRegularExpression(r'\[\^\S+\]'), footnote_format))
-
-        # Definition List
-        definition_format = QTextCharFormat()
-        definition_format.setForeground(Qt.darkMagenta)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*.*:\s.*$'), definition_format))
-
-        # Emoji
-        emoji_format = QTextCharFormat()
-        emoji_format.setForeground(Qt.darkCyan)
-        self.highlighting_rules.append((QRegularExpression(r':[a-zA-Z0-9_+-]+:'), emoji_format))
-
-        # Highlight
-        highlight_format = QTextCharFormat()
-        highlight_format.setBackground(Qt.yellow)
-        self.highlighting_rules.append((QRegularExpression(r'==.*?=='), highlight_format))
-
-        # Task Lists
-        task_list_format = QTextCharFormat()
-        task_list_format.setForeground(Qt.darkCyan)
-        self.highlighting_rules.append((QRegularExpression(r'^\s*\[([ xX])\]\s.*$'), task_list_format))
-
-        # Strikethrough (Tilde Syntax)
-        tilde_strikethrough_format = QTextCharFormat()
-        tilde_strikethrough_format.setFontStrikeOut(True)
-        tilde_strikethrough_format.setForeground(Qt.darkGray)
-        self.highlighting_rules.append((QRegularExpression(r'~(.*?)~'), tilde_strikethrough_format))
-
-        # Autolinks
-        autolink_format = QTextCharFormat()
-        autolink_format.setForeground(Qt.blue)
-        self.highlighting_rules.append((QRegularExpression(r'<(?:https?://[^>]+)>'), autolink_format))
-
-        # Mentions or References
-        mention_format = QTextCharFormat()
-        mention_format.setForeground(Qt.darkGreen)
-        self.highlighting_rules.append((QRegularExpression(r'@[\w.-]+'), mention_format))
-
-        # Footnote Links in Text
-        footnote_link_format = QTextCharFormat()
-        footnote_link_format.setForeground(Qt.darkRed)
-        self.highlighting_rules.append((QRegularExpression(r'\[\^\S+\]'), footnote_link_format))
-
-    def highlightBlock(self, text):  # if you remove it editor will get freeze
-        for pattern, format in self.highlighting_rules:
-            expression = QRegularExpression(pattern)
-            it = expression.globalMatch(text)
-            while it.hasNext():
-                match = it.next()
-                self.setFormat(match.capturedStart(), match.capturedLength(), format)
-
-
 def secure_delete_file(filename, passes=9):
     try:
         with open(filename, 'rb+') as f:
@@ -412,7 +285,6 @@ def secure_delete_file(filename, passes=9):
         print(f"temp file not found, You are safe.")
 
 
-# binary mode
 def copy_file(source_file, destination_file):
     try:
         with open(source_file, 'r') as source:
@@ -467,9 +339,8 @@ def view_mode_less():
 
 def start_magic_memory_mark_editor():
     global app
-    # app = QApplication(sys.argv)
     if not app:
-        app = QApplication(sys.argv)
+        app = QApplication(sys.argv) #  Create the QApplication instance
     editor = MagicMemoryMarkTextEditor()
     editor.show()
     app.exec_()
@@ -508,17 +379,6 @@ def create_entry():
     with open(entry_file_path, "w") as file:  # error
         file.write(enc_note)
     print(f"Diary entry saved to {entry_file_path}")
-
-
-def editmode_magic_memory_mark_editor(bytes_data_to_str):
-    global app
-    if not app:
-        app = QApplication(sys.argv)
-    editor = MagicMemoryMarkTextEditor()
-    editor.var_to_editor(bytes_data_to_str)
-    editor.show()
-    app.exec_()
-    return editor
 
 
 def get_md_files_recursively(directory="."):
@@ -561,76 +421,55 @@ def choose_file(md_files):
     return selected_file
 
 
-def edit_mode():
-    md_files = get_md_files_recursively()
-
+def edit_n_view_mode(md_files, password, edit_mode=False):
     if not md_files:
         print("No .enc files found in the current directory or its subdirectories.")
         return
-    else:
 
-        selected_file = choose_file(md_files)
-        if selected_file:
-            temp_decrypted_file = ".tmp_decrypted.txt"
-            copy_file(selected_file, temp_decrypted_file)
-            with open(temp_decrypted_file, "r") as file:
-                bytes_data = file.read()
-            bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, password)
+    selected_file = choose_file(md_files)
+    if selected_file:
+        temp_decrypted_file = ".tmp"
+        copy_file(selected_file, temp_decrypted_file)
+        with open(temp_decrypted_file, "r") as file:
+            bytes_data = file.read()
+        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, password)
+        global app
+        if not app:
+            app = QApplication(sys.argv)
+        if not edit_mode:  # view_mode
+            read_only_warning = QMessageBox()
+            read_only_warning.setWindowTitle("Read-Only Mode")
+            read_only_warning.setIcon(QMessageBox.Warning)
+            read_only_warning.setText(
+                "Note: You have opened this file in read-only mode. Any attempt to save will not be successful.")
+            read_only_warning.exec_()
 
-            the_note = editmode_magic_memory_mark_editor(bytes_data_to_str)
-            the_saved_text = the_note.save_text()
+        editor = MagicMemoryMarkTextEditor()
+        editor.var_to_editor(bytes_data_to_str)
+        editor.show()
+        app.exec_()
 
-            now = datetime.now()
-            last_modified_date = now.strftime("%Y-%m-%d %H:%M:%S")
-            total_string = f"\n\nLast modified: {last_modified_date}\n"
-
-            total_note = f"{the_saved_text} {total_string}"
+        if edit_mode:
+            dec_note = editor
+            the_saved_text = dec_note.save_text()
+            last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
+            total_note = f"{the_saved_text} {last_modified_date_string}"
             enc_note = start_var_data_encryptor("enc", total_note, password)
 
-            with open(temp_decrypted_file, "w") as file:  # error
+            with open(temp_decrypted_file, "w") as file:
                 file.write(enc_note)
-            print(f"Diary entry saved to {temp_decrypted_file}")
             copy_file(temp_decrypted_file, selected_file)
-            secure_delete_file(temp_decrypted_file)
-            print(f"File '{selected_file}' edited and saved.")
 
+        secure_delete_file(temp_decrypted_file)
+
+def edit_mode():
+    md_files = get_md_files_recursively()
+    edit_n_view_mode(md_files, password, edit_mode=True)
 
 def view_mode_gui():
     md_files = get_md_files_recursively()
-
-    if not md_files:
-        print("No .enc files found in the current directory or its subdirectories.")
-        return
-    else:
-        selected_file = choose_file(md_files)
-        if selected_file:
-            source_filename = selected_file
-            destination_filename = '.tmp.txt'
-            copy_file(source_filename, destination_filename)
-            with open(destination_filename, "r") as file:
-                bytes_data = file.read()
-            bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, password)
-
-            root = tk.Tk()
-            root.title("Read-Only Warning")
-            root.wm_attributes("-type", "splash")  # WM
-            root.wm_attributes("-topmost", 1)  # WM
-            root.geometry("400x150")
-            warning_message = "Note: You have opened this file in read-only mode. Any attempt to save will not be successful."
-            messagebox.showwarning("Read-Only Mode", warning_message)
-            root.destroy()
-            global app
-            # app = QApplication(sys.argv)
-            if not app:
-                app = QApplication(sys.argv)
-            editor = MagicMemoryMarkTextEditor()
-            editor.var_to_editor(bytes_data_to_str)
-            editor.show()
-            app.exec_()
-            # return editor
-
-            file_to_delete = ".tmp.txt"
-            secure_delete_file(file_to_delete)
+    edit_n_view_mode(md_files, password, edit_mode=False)
 
 
 def commit_to_git():
