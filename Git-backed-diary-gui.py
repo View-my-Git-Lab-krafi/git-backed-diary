@@ -301,7 +301,7 @@ def view_mode_less():
     md_files = get_md_files_recursively()
 
     if not md_files:
-        print("No .enc files found in the current directory or its subdirectories.")
+        print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
         return
 
     md_files.sort()
@@ -369,7 +369,7 @@ def create_entry():
     else:
         print("No file name entered.")
     sanitized_file_name = "".join(c if c.isalnum() else "-" for c in file_name_input.lower())
-    filename = f"{entry_date}-{sanitized_file_name}.enc"
+    filename = f"{entry_date}-{sanitized_file_name}.enc.GitDiarySync"
     month_year_dir = now.strftime("%b-%Y")
     if not os.path.exists(month_year_dir):
         os.makedirs(month_year_dir)
@@ -384,7 +384,7 @@ def create_entry():
 def get_md_files_recursively(directory="."):
     md_files = []
     for root, _, files in os.walk(directory):
-        md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc")])
+        md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc.GitDiarySync")])
     return md_files
 
 
@@ -423,7 +423,7 @@ def choose_file(md_files):
 
 def edit_n_view_mode(md_files, password, edit_mode=False):
     if not md_files:
-        print("No .enc files found in the current directory or its subdirectories.")
+        print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
         return
 
     selected_file = choose_file(md_files)
@@ -474,7 +474,7 @@ def view_mode_gui():
 
 def commit_to_git():
     commit_message = input("Enter a commit message for Git:\n")
-    subprocess.run(["git", "add", "*.enc"])
+    subprocess.run(["git", "add", "*.enc.GitDiarySync"])
     subprocess.run(["git", "commit", "-m", commit_message])
 #    git config --global credential.helper store
 
@@ -527,7 +527,7 @@ def input_pass_now(wel_root):
     lock = "\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n"
     enc_note = start_var_data_encryptor("enc", lock, passwd)
 
-    with open(".passwd.txt", 'w') as file:
+    with open("enc.GitDiarySync", 'w') as file:
         file.write(enc_note)
     wel_roott = tk.Tk()
     wel_roott.title("Git-backed-diary Password Verification")
@@ -563,14 +563,14 @@ def close_window(window):
 
 
 def main():
-    if not os.path.exists(".passwd.txt"):
+    if not os.path.exists("enc.GitDiarySync"):
         first_time_welcome_screen()
     print("\n\nWelcome to the Git-backed-diary application!\n")
     global password
 
     password = input_password_using_tkinter()
     print("\n")
-    copy_file(".passwd.txt", ".passwd_test.txt")
+    copy_file("enc.GitDiarySync", ".passwd_test.txt")
     with open(".passwd_test.txt", 'r') as file:
         encrypted_data = file.read()
 
@@ -596,7 +596,7 @@ def main():
 
     except UnicodeDecodeError:
         messagebox.showerror("Password Error", "Your password looks incorrect because the file doesnot contains text data.\n"
-                                          "If you want to reset remove .passwd.txt, "
+                                          "If you want to reset remove enc.GitDiarySync, "
                                           "also remember that you will become unable to access your old notes.\n"
                                           "If you are able to set your old correct password you will able to access your file again")
         sys.exit()
