@@ -348,32 +348,30 @@ def start_magic_memory_mark_editor():
     return editor
 
 
-def create_entry():
+
+def create_entry(password):
     now = datetime.now()
     entry_date = now.strftime("%Y-%m-%d")
     entry_time = now.strftime("%H:%M:%S")
     entry_datetime = f"{entry_date} \n{entry_time}\n"  # new one
-    # (f"Date: {entry_date}\nTime: {entry_time}\n\n")
     note = start_magic_memory_mark_editor()
     saved_text = note.save_text()
 
     join_date_and_note = f"\n{entry_datetime}\n{saved_text}"
 
-    rootz = tk.Tk()
-    rootz.withdraw()  # Hide the main window
-
     file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
 
     if file_name_input:
         print("File name entered:", file_name_input)
-    else:
-        print("No file name entered.")
+    else: 
+        file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
     sanitized_file_name = "".join(c if c.isalnum() else "-" for c in file_name_input.lower())
     filename = f"{entry_date}-{sanitized_file_name}.enc.GitDiarySync"
-    month_year_dir = now.strftime("%b-%Y")
-    if not os.path.exists(month_year_dir):
-        os.makedirs(month_year_dir)
-    entry_file_path = os.path.join(month_year_dir, filename)
+    write_path = (".enc.GitDiarySync/" + now.strftime("%b-%Y") + "/" + now.strftime("%d"))
+    if not os.path.exists(write_path):
+        os.makedirs(write_path)
+
+    entry_file_path = os.path.join(write_path, filename)
     enc_note = start_var_data_encryptor("enc", join_date_and_note, password)
 
     with open(entry_file_path, "w") as file:  # error
@@ -421,7 +419,8 @@ def choose_file(md_files):
     return selected_file
 
 
-def edit_n_view_mode(md_files, password, edit_mode=False):
+def edit_n_view_mode(password, edit_mode):
+    md_files = get_md_files_recursively()
     if not md_files:
         print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
         return
@@ -463,13 +462,6 @@ def edit_n_view_mode(md_files, password, edit_mode=False):
 
         secure_delete_file(temp_decrypted_file)
 
-def edit_mode():
-    md_files = get_md_files_recursively()
-    edit_n_view_mode(md_files, password, edit_mode=True)
-
-def view_mode_gui():
-    md_files = get_md_files_recursively()
-    edit_n_view_mode(md_files, password, edit_mode=False)
 
 
 def commit_to_git():
@@ -543,6 +535,27 @@ def input_pass_now(wel_root):
     wel_roott.mainloop()
 
 
+def input_pass_now_first_time(wel_root):
+    wel_root.destroy()
+    passwd = input_password_using_tkinter()
+    lock = "\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n"
+    enc_note = start_var_data_encryptor("enc", lock, passwd)
+
+    with open("enc.GitDiarySync", 'w') as file:
+        file.write(enc_note)
+    wel_roott = tk.Tk()
+    wel_roott.title("Git-backed-diary Password Verification")
+    wel_roott.wm_attributes("-type", "splash")  # WM
+    wel_roott.wm_attributes("-topmost", 1)  # WM
+
+    welcome_label = tk.Label(wel_roott, text="Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct \n Now start the program again! \n thanks")
+    welcome_label.pack()
+
+    start_button = tk.Button(wel_roott, text="close the program", command=stop_code)
+    start_button.pack()
+
+    wel_roott.mainloop()
+
 def first_time_welcome_screen():
     wel_root = tk.Tk()
     wel_root.title("Git-backed-diary Password Verification")
@@ -552,7 +565,7 @@ def first_time_welcome_screen():
     welcome_label = tk.Label(wel_root, text="Welcome to the Git-backed-diary application! \n \n For security reasons, please set a strong password for your diary. \n Keep in mind that once set, the password cannot be recovered, so make sure to remember it. \n If you ever wish to reset the password, delete the 'passwd.txt' file and create a new one. \n Keep your password safe and secure as it will protect your diary entries from unauthorized access.\n\n Please enter your password")
     welcome_label.pack()
 
-    start_button = tk.Button(wel_root, text="ready for input password", command=lambda: input_pass_now(wel_root))
+    start_button = tk.Button(wel_root, text="ready for input password", command=lambda: input_pass_now_first_time(wel_root))
     start_button.pack()
 
     wel_root.mainloop()
@@ -566,7 +579,7 @@ def main():
     if not os.path.exists("enc.GitDiarySync"):
         first_time_welcome_screen()
     print("\n\nWelcome to the Git-backed-diary application!\n")
-    global password
+    #global password
 
     password = input_password_using_tkinter()
     print("\n")
@@ -612,13 +625,15 @@ def main():
 
         def handle_button_click(choice):
             if choice == "1":
-                create_entry()
+                create_entry(password)
             elif choice == "2":
                 commit_to_git()
             elif choice == "3":
-                edit_mode()
+                
+                edit_n_view_mode(password, edit_mode=True)
             elif choice == "4":
-                view_mode_gui()
+                 #view mode
+                edit_n_view_mode(password, edit_mode=False)
             elif choice == "5":
                 view_mode_less()
             elif choice == "6":

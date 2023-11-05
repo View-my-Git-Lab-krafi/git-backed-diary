@@ -23,6 +23,7 @@ def unpad(data):
 def encrypt_data(data, password):
     salt = get_random_bytes(16)
     key = derive_key(password, salt, 32)
+    password = None 
     iv = get_random_bytes(16)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     plaintext = data.encode()
@@ -43,6 +44,7 @@ def decrypt_data(encrypted_data, password):
     iv = encrypted_binary_data[16:32]
     ciphertext = encrypted_binary_data[32:]
     key = derive_key(password, salt, 32)
+    password = None
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted_data = unpad(cipher.decrypt(ciphertext))
     return decrypted_data.decode()
