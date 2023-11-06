@@ -32,7 +32,8 @@ from text_editor.VarDataEncryptor import start_var_data_encryptor
 from text_editor.markdown_highlighter import MarkdownHighlighter
 from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
 from PySide2.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton
-
+from PySide2.QtWidgets import QApplication, QWidget, QVBoxLayout, QListWidget, QPushButton, QCalendarWidget, QMessageBox
+from PySide2.QtCore import QDate, Qt
 
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
@@ -418,8 +419,16 @@ def choose_file(md_files):
     print("filtered_files:", filtered_files)
     print("File Dictionary:", file_dict)
 
+    calendar_widget = QCalendarWidget()
+    layout.addWidget(calendar_widget)
     layout.addWidget(list_widget)
-
+	
+    # Highlight specific dates
+    highlighted_dates = [QDate(2023, 11, 10), QDate(2023, 11, 15)]
+    for date in highlighted_dates:
+        date_format = calendar_widget.dateTextFormat(date)
+        date_format.setBackground(Qt.red)
+        calendar_widget.setDateTextFormat(date, date_format)
     select_button = QPushButton("Select")
     layout.addWidget(select_button)
 
