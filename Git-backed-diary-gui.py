@@ -25,7 +25,8 @@ from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer
-
+from PySide2.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton
+from PySide2.QtCore import Qt
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
@@ -476,52 +477,81 @@ def commit_to_git():
     print("Changes committed and pushed to Git repository.")
 
 
-def input_passwd_using_tkinter():
-    roots = tk.Tk()
-    roots.title("Personal Diary")
-    roots.wm_attributes("-type", "splash")  # WM
-    roots.wm_attributes("-topmost", 1)  # WM
 
-    # roots.attributes("-topmost", True)
-    roots.geometry("400x200")
-    roots.configure(bg="#f2f2f2")
+def input_passwd():
+    global app
+    if not app:
+        app = QApplication(sys.argv) #  Create the QApplication instance
+        print("Create the QApplication instance")
+    if app:
+        app = QApplication.instance() # retrieves the instance
+        print("retrieves the instance")
+    #app = QApplication([])
+    window = QMainWindow()
+    window.setWindowTitle("Personal Diary")
 
-    custom_font = ("Arial", 14, "bold")
+    window.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
+    window.setWindowFlags(Qt.Dialog)
 
-    title_label = tk.Label(roots, text="Welcome to Personal Diary", font=("Arial", 18, "bold"), fg="blue", bg="#f2f2f2")
-    title_label.pack(pady=10)
+    screen_resolution = app.desktop().screenGeometry()
+    width, height = 400, 200
+    x = (screen_resolution.width() - width) // 2
+    y = (screen_resolution.height() - height) // 2
 
-    passwd_label = tk.Label(roots, text="Enter Password:", font=custom_font, fg="black", bg="#f2f2f2")
-    passwd_label.pack()
+    window.setGeometry(x, y, width, height)
+    central_widget = QWidget()
+    window.setCentralWidget(central_widget)
+    layout = QVBoxLayout(central_widget)
 
-    passwd_entry = tk.Entry(roots, show="*", font=custom_font)
-    passwd_entry.pack(pady=10)
+    title_label = QLabel("Welcome to Personal Diary")
+    title_label.setFont(QFont("Arial", 18, QFont.Bold))
+    title_label.setStyleSheet("color: blue;")
+    layout.addWidget(title_label)
 
-    check_button = tk.Button(roots, text="Unlock Diary", font=custom_font, bg="green", fg="white", command=roots.quit)
-    check_button.pack(pady=10)
-    passwd_entry.focus_set()
+    passwd_label = QLabel("Enter Password:")
+    passwd_label.setFont(QFont("Arial", 14, QFont.Bold))
+    layout.addWidget(passwd_label)
 
-    roots.bind('<Return>', lambda event: check_button.invoke())
+    passwd_entry = QLineEdit()
+    passwd_entry.setEchoMode(QLineEdit.Password)
+    passwd_entry.setFont(QFont("Arial", 14, QFont.Bold))
+    layout.addWidget(passwd_entry)
 
-    roots.mainloop()
-    entered_passwd = passwd_entry.get()
-    close_window(roots)
+    check_button = QPushButton("Unlock Diary")
+    check_button.setFont(QFont("Arial", 14, QFont.Bold))
+    layout.addWidget(check_button)
+
+    entered_passwd = "" 
+
+    def on_button_click():
+        passwd = passwd_entry.text()
+        window.close()
+        hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
+        print(hash_note)
+        with open("enc.GitDiarySync", 'w') as file:
+            file.write(hash_note)
+        msg_box = QMessageBox()
+        msg_box.setText("Setup completed. Start the program again.")
+        msg_box.exec_()
+        sys.exit()
+
+    check_button.clicked.connect(on_button_click)
+    passwd_entry.returnPressed.connect(on_button_click)
+
+    window.show()
+    app.exec_()
+
     return entered_passwd
+
 
 def input_pass_now_first_time(wel_root):
     wel_root.hide()
-
-    passwd = input_passwd_using_tkinter()
-    hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
-    print(hash_note)
-    with open("enc.GitDiarySync", 'w') as file:
-        file.write(hash_note)
-    msg_box = QMessageBox()
-    msg_box.setText("Setup completed. Start the program again.")
-    msg_box.exec_()
-    sys.exit()
+    #wel_root.close()
+    #app.quit()
+    input_passwd()
 
 def first_time_welcome_screen():
+    global app
     app = QApplication(sys.argv)
     wel_root = QMainWindow()
     wel_root.setWindowTitle("Git-backed-diary Password Verification")
@@ -533,13 +563,15 @@ def first_time_welcome_screen():
     welcome_label.setText("Welcome to the Git-backed diary application!\n\nFor security reasons, please set a strong password for your diary.\nKeep in mind that once set, the password cannot be recovered, so be sure to remember it.\nIf you ever wish to reset the password, delete the 'enc.GitDiarySync' file and run this program again to create a new one.\n Keep your password safe and secure, as it will protect your diary entries from unauthorized access.\n\n Tips: If you remove the 'enc.GitDiarySync' and set your old password again, you can access your old content. \n\nPlease enter your password")
     layout.addWidget(welcome_label)
 
+    wel_root.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
+    wel_root.setWindowFlags(Qt.Dialog)
+
     start_button = QPushButton("Ready for input password")
     start_button.clicked.connect(lambda: input_pass_now_first_time(wel_root))
     layout.addWidget(start_button)
 
     central_widget.setLayout(layout)
     wel_root.setCentralWidget(central_widget)
-
     wel_root.show()
     sys.exit(app.exec_())
 
@@ -553,7 +585,7 @@ def main():
     print("\n\nWelcome to the Git-backed-diary application!\n")
     #global password
 
-    passwd = input_passwd_using_tkinter()
+    passwd = input_passwd()
     print("\n")
     copy_file("enc.GitDiarySync", ".tmp")
     with open(".tmp", 'r') as file:
