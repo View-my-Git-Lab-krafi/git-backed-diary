@@ -508,31 +508,18 @@ def input_passwd_using_tkinter():
     close_window(roots)
     return entered_passwd
 
+def input_pass_now_first_time(wel_root):
+    wel_root.hide()
 
-def stop_code():
-    sys.exit()
-
-
-def input_pass_now_first_time():
-    #wel_root.destroy()
     passwd = input_passwd_using_tkinter()
     hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
     print(hash_note)
     with open("enc.GitDiarySync", 'w') as file:
         file.write(hash_note)
-    wel_roott = tk.Tk()
-    wel_roott.title("Git-backed-diary Password Verification")
-    wel_roott.wm_attributes("-type", "splash")  # WM
-    wel_roott.wm_attributes("-topmost", 1)  # WM
-
-    welcome_label = tk.Label(wel_roott, text="Start the program again , set-up compleated")
-    welcome_label.pack()
-
-    start_button = tk.Button(wel_roott, text="Exit", command=stop_code)
-    start_button.pack()
-
-    wel_roott.mainloop()
-
+    msg_box = QMessageBox()
+    msg_box.setText("Setup completed. Start the program again.")
+    msg_box.exec_()
+    sys.exit()
 
 def first_time_welcome_screen():
     app = QApplication(sys.argv)
@@ -547,7 +534,7 @@ def first_time_welcome_screen():
     layout.addWidget(welcome_label)
 
     start_button = QPushButton("Ready for input password")
-    start_button.clicked.connect(lambda: input_pass_now_first_time())
+    start_button.clicked.connect(lambda: input_pass_now_first_time(wel_root))
     layout.addWidget(start_button)
 
     central_widget.setLayout(layout)
