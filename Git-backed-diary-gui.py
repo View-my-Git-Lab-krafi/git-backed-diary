@@ -20,13 +20,11 @@ from PySide2 import QtWidgets, QtGui
 from Crypto.Random import get_random_bytes
 from PySide2 import QtWidgets, QtGui, QtCore
 from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
-from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog)
+from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit)
 from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton)
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer
-from PySide2.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QPushButton
-from PySide2.QtCore import Qt
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
