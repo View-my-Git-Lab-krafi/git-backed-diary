@@ -4,6 +4,11 @@ from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
 from Crypto.Protocol.KDF import PBKDF2
 
+import getpass
+import bcrypt
+from passlib.hash import pbkdf2_sha512
+import secrets
+import getpass
 
 def derive_key(password, salt, key_length):
     return PBKDF2(password, salt, dkLen=key_length, count=100000)
@@ -18,8 +23,6 @@ def unpad(data):
     padding = data[-1]
     return data[:-padding]
 
-
-# echo -n "your_data" | openssl enc -aes-256-cbc -salt -pbkdf2 -pass pass:"your_password" -out encrypted.bin
 def encrypt_data(data, password):
     salt = get_random_bytes(16)
     key = derive_key(password, salt, 32)
@@ -33,8 +36,6 @@ def encrypt_data(data, password):
     encrypted_hex = enc_binary_data.hex()
     return encrypted_hex
 
-
-# openssl enc -d -aes-256-cbc -in encrypted.bin -salt -pbkdf2 -pass pass:"your_password"
 def decrypt_data(encrypted_data, password):
     encrypted_binary_data = bytes.fromhex(encrypted_data)
     if not encrypted_binary_data.startswith(b'ENCRYPTED:'):
@@ -44,7 +45,7 @@ def decrypt_data(encrypted_data, password):
     iv = encrypted_binary_data[16:32]
     ciphertext = encrypted_binary_data[32:]
     key = derive_key(password, salt, 32)
-    password = None
+    #password = None #secure mode maybe i will add this feature in future.
     cipher = AES.new(key, AES.MODE_CBC, iv)
     decrypted_data = unpad(cipher.decrypt(ciphertext))
     return decrypted_data.decode()
@@ -59,3 +60,5 @@ def start_var_data_encryptor(worktype, data, passwd):
         dec = decrypt_data(data, passwd)
         #print(dec)
         return dec
+
+

@@ -24,14 +24,14 @@ from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout
 from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton)
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
-from PySide2.QtCore import Qt, QRegularExpression, QPoint
+from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer
 
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
 from text_editor.VarDataEncryptor import start_var_data_encryptor
 from text_editor.markdown_highlighter import MarkdownHighlighter
-
+from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -317,17 +317,17 @@ def view_mode_less():
         if 1 <= choice <= len(md_files):
             selected_file = md_files[choice - 1]
             source_filename = selected_file
-            destination_filename = '.tmp.txt'
+            destination_filename = '.tmp'
             copy_file(source_filename, destination_filename)
             # binary_data = None
 
             with open(destination_filename, 'r') as binary_file:
                 binary_data = binary_file.read()
-            decrypt_data = start_var_data_encryptor("dec", binary_data, password)
+            decrypt_data = start_var_data_encryptor("dec", binary_data, passwd)
             p = subprocess.Popen(["less"], stdin=subprocess.PIPE)
             p.communicate(input=decrypt_data.encode())
 
-            file_to_delete = ".tmp.txt"
+            file_to_delete = ".tmp"
             secure_delete_file(file_to_delete)
 
         else:
@@ -349,7 +349,7 @@ def start_magic_memory_mark_editor():
 
 
 
-def create_entry(password):
+def create_entry(passwd):
     now = datetime.now()
     entry_date = now.strftime("%Y-%m-%d")
     entry_time = now.strftime("%H:%M:%S")
@@ -372,7 +372,7 @@ def create_entry(password):
         os.makedirs(write_path)
 
     entry_file_path = os.path.join(write_path, filename)
-    enc_note = start_var_data_encryptor("enc", join_date_and_note, password)
+    enc_note = start_var_data_encryptor("enc", join_date_and_note, passwd)
 
     with open(entry_file_path, "w") as file:  # error
         file.write(enc_note)
@@ -419,7 +419,7 @@ def choose_file(md_files):
     return selected_file
 
 
-def edit_n_view_mode(password, edit_mode):
+def edit_n_view_mode(passwd, edit_mode):
     md_files = get_md_files_recursively()
     if not md_files:
         print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
@@ -431,7 +431,7 @@ def edit_n_view_mode(password, edit_mode):
         copy_file(selected_file, temp_decrypted_file)
         with open(temp_decrypted_file, "r") as file:
             bytes_data = file.read()
-        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, password)
+        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, passwd)
         global app
         if not app:
             app = QApplication(sys.argv)
@@ -454,7 +454,7 @@ def edit_n_view_mode(password, edit_mode):
             last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
             total_note = f"{the_saved_text} {last_modified_date_string}"
-            enc_note = start_var_data_encryptor("enc", total_note, password)
+            enc_note = start_var_data_encryptor("enc", total_note, passwd)
 
             with open(temp_decrypted_file, "w") as file:
                 file.write(enc_note)
@@ -476,7 +476,7 @@ def commit_to_git():
     print("Changes committed and pushed to Git repository.")
 
 
-def input_password_using_tkinter():
+def input_passwd_using_tkinter():
     roots = tk.Tk()
     roots.title("Personal Diary")
     roots.wm_attributes("-type", "splash")  # WM
@@ -491,85 +491,70 @@ def input_password_using_tkinter():
     title_label = tk.Label(roots, text="Welcome to Personal Diary", font=("Arial", 18, "bold"), fg="blue", bg="#f2f2f2")
     title_label.pack(pady=10)
 
-    password_label = tk.Label(roots, text="Enter Password:", font=custom_font, fg="black", bg="#f2f2f2")
-    password_label.pack()
+    passwd_label = tk.Label(roots, text="Enter Password:", font=custom_font, fg="black", bg="#f2f2f2")
+    passwd_label.pack()
 
-    password_entry = tk.Entry(roots, show="*", font=custom_font)
-    password_entry.pack(pady=10)
+    passwd_entry = tk.Entry(roots, show="*", font=custom_font)
+    passwd_entry.pack(pady=10)
 
     check_button = tk.Button(roots, text="Unlock Diary", font=custom_font, bg="green", fg="white", command=roots.quit)
     check_button.pack(pady=10)
-    password_entry.focus_set()
+    passwd_entry.focus_set()
 
     roots.bind('<Return>', lambda event: check_button.invoke())
 
     roots.mainloop()
-    entered_password = password_entry.get()
+    entered_passwd = passwd_entry.get()
     close_window(roots)
-    return entered_password
+    return entered_passwd
 
 
 def stop_code():
     sys.exit()
 
 
-def input_pass_now(wel_root):
-    wel_root.destroy()
-    passwd = input_password_using_tkinter()
-    lock = "\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n"
-    enc_note = start_var_data_encryptor("enc", lock, passwd)
-
+def input_pass_now_first_time():
+    #wel_root.destroy()
+    passwd = input_passwd_using_tkinter()
+    hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
+    print(hash_note)
     with open("enc.GitDiarySync", 'w') as file:
-        file.write(enc_note)
+        file.write(hash_note)
     wel_roott = tk.Tk()
     wel_roott.title("Git-backed-diary Password Verification")
     wel_roott.wm_attributes("-type", "splash")  # WM
     wel_roott.wm_attributes("-topmost", 1)  # WM
 
-    welcome_label = tk.Label(wel_roott, text="Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct \n Now start the program again! \n thanks")
+    welcome_label = tk.Label(wel_roott, text="Start the program again , set-up compleated")
     welcome_label.pack()
 
-    start_button = tk.Button(wel_roott, text="close the program", command=stop_code)
+    start_button = tk.Button(wel_roott, text="Exit", command=stop_code)
     start_button.pack()
 
     wel_roott.mainloop()
 
-
-def input_pass_now_first_time(wel_root):
-    wel_root.destroy()
-    passwd = input_password_using_tkinter()
-    lock = "\n<================================================>\n[========Your password is correct. Great!========]\n<================================================>\n\n"
-    enc_note = start_var_data_encryptor("enc", lock, passwd)
-
-    with open("enc.GitDiarySync", 'w') as file:
-        file.write(enc_note)
-    wel_roott = tk.Tk()
-    wel_roott.title("Git-backed-diary Password Verification")
-    wel_roott.wm_attributes("-type", "splash")  # WM
-    wel_roott.wm_attributes("-topmost", 1)  # WM
-
-    welcome_label = tk.Label(wel_roott, text="Now everytime you open the program you should able to see, 'Your password is correct. Great!' this message  \n that means your passwd is correct \n Now start the program again! \n thanks")
-    welcome_label.pack()
-
-    start_button = tk.Button(wel_roott, text="close the program", command=stop_code)
-    start_button.pack()
-
-    wel_roott.mainloop()
 
 def first_time_welcome_screen():
-    wel_root = tk.Tk()
-    wel_root.title("Git-backed-diary Password Verification")
-    wel_root.wm_attributes("-type", "splash")  # WM
-    wel_root.wm_attributes("-topmost", 1)  # WM
+    app = QApplication(sys.argv)
+    wel_root = QMainWindow()
+    wel_root.setWindowTitle("Git-backed-diary Password Verification")
 
-    welcome_label = tk.Label(wel_root, text="Welcome to the Git-backed-diary application! \n \n For security reasons, please set a strong password for your diary. \n Keep in mind that once set, the password cannot be recovered, so make sure to remember it. \n If you ever wish to reset the password, delete the 'passwd.txt' file and create a new one. \n Keep your password safe and secure as it will protect your diary entries from unauthorized access.\n\n Please enter your password")
-    welcome_label.pack()
+    central_widget = QWidget()
+    layout = QVBoxLayout()
 
-    start_button = tk.Button(wel_root, text="ready for input password", command=lambda: input_pass_now_first_time(wel_root))
-    start_button.pack()
+    welcome_label = QLabel()
+    welcome_label.setText("Welcome to the Git-backed diary application!\n\nFor security reasons, please set a strong password for your diary.\nKeep in mind that once set, the password cannot be recovered, so be sure to remember it.\nIf you ever wish to reset the password, delete the 'enc.GitDiarySync' file and run this program again to create a new one.\n Keep your password safe and secure, as it will protect your diary entries from unauthorized access.\n\n Tips: If you remove the 'enc.GitDiarySync' and set your old password again, you can access your old content. \n\nPlease enter your password")
+    layout.addWidget(welcome_label)
 
-    wel_root.mainloop()
+    start_button = QPushButton("Ready for input password")
+    start_button.clicked.connect(lambda: input_pass_now_first_time())
+    layout.addWidget(start_button)
 
+    central_widget.setLayout(layout)
+    wel_root.setCentralWidget(central_widget)
+
+    wel_root.show()
+    sys.exit(app.exec_())
 
 def close_window(window):
     window.destroy()
@@ -581,42 +566,43 @@ def main():
     print("\n\nWelcome to the Git-backed-diary application!\n")
     #global password
 
-    password = input_password_using_tkinter()
+    passwd = input_passwd_using_tkinter()
     print("\n")
-    copy_file("enc.GitDiarySync", ".passwd_test.txt")
-    with open(".passwd_test.txt", 'r') as file:
+    copy_file("enc.GitDiarySync", ".tmp")
+    with open(".tmp", 'r') as file:
         encrypted_data = file.read()
 
-    try:  # login password check section
-        content = start_var_data_encryptor("dec", encrypted_data, password)
+    # login password check section  QMessageBox()
+    content = HashPasswdAuthenticator("BcryptDec", passwd, encrypted_data)  # you can also try Pbkdf2tEnc
+    global app
+    app = None
+    if not app:
+        app = QApplication(sys.argv)
+    if content:
+        close_timer = QTimer()
+        success_message = QMessageBox()
+        success_message.setWindowTitle("File Content")
+        success_message.setText("Your password is correct. Great!")
+        success_message.setIcon(QMessageBox.Information)
+        success_message.setStandardButtons(QMessageBox.Ok)
+        close_timer.timeout.connect(success_message.accept)
+        close_timer.start(2000) 
+        success_message.exec_()
 
-        def close_window():
-            pass_suc.destroy()
+    else:
 
-        pass_suc = tk.Tk()
-        pass_suc.title("File Content")
-        # pass_suc.attributes("-topmost", True)
-        pass_suc.wm_attributes("-type", "splash")  # WM
-        pass_suc.wm_attributes("-topmost", 1)  # WM
-        text_widget = tk.Text(pass_suc)
-        text_widget.insert(tk.END, content)
-        text_widget.pack()
-        ok_button = tk.Button(pass_suc, text="OK", command=close_window)
-        ok_button.focus_set()
-        pass_suc.bind('<Return>', lambda event=None: ok_button.invoke())
-        ok_button.pack()
-        pass_suc.mainloop()
-
-    except UnicodeDecodeError:
-        messagebox.showerror("Password Error", "Your password looks incorrect because the file doesnot contains text data.\n"
-                                          "If you want to reset remove enc.GitDiarySync, "
-                                          "also remember that you will become unable to access your old notes.\n"
-                                          "If you are able to set your old correct password you will able to access your file again")
+        error_message = QMessageBox()
+        error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("Password Error")
+        error_message.setText("Your password appears to be incorrect.\n"
+                            "If you wish to reset it, delete the 'enc.GitDiarySync' file and run this program again to create a new one.\n"
+                            "Please note that you will lose access to your old notes if you set a new password.\n"
+                            "However, if you can recall your old correct password, you can regain access to your files.\n"
+                            "Tips: If you remove the 'enc.GitDiarySync' and set your old password again, you can access your old content.")
+        error_message.exec_()
         sys.exit()
-
     while True:
-        secure_delete_file(".tmp.txt")
-        secure_delete_file(".passwd_test.txt")
+        secure_delete_file(".tmp")
 
         def handle_choice(event):
             choice = event.char
@@ -625,15 +611,15 @@ def main():
 
         def handle_button_click(choice):
             if choice == "1":
-                create_entry(password)
+                create_entry(passwd)
             elif choice == "2":
                 commit_to_git()
             elif choice == "3":
                 
-                edit_n_view_mode(password, edit_mode=True)
+                edit_n_view_mode(passwd, edit_mode=True)
             elif choice == "4":
                  #view mode
-                edit_n_view_mode(password, edit_mode=False)
+                edit_n_view_mode(passwd, edit_mode=False)
             elif choice == "5":
                 view_mode_less()
             elif choice == "6":
@@ -672,6 +658,4 @@ def main():
         root.mainloop()
 
 if __name__ == "__main__":
-    #global app
-    app = None
     main()
