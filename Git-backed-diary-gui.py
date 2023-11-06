@@ -1,5 +1,5 @@
 # pip install markdown2 pycryptodome PySide2
-
+import re
 import os
 import io
 import sys
@@ -31,6 +31,9 @@ from text_editor.EmojiPicker import EmojiPicker
 from text_editor.VarDataEncryptor import start_var_data_encryptor
 from text_editor.markdown_highlighter import MarkdownHighlighter
 from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
+from PySide2.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton
+
+
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -384,40 +387,62 @@ def get_md_files_recursively(directory="."):
         md_files.extend([os.path.join(root, file) for file in files if file.endswith(".enc.GitDiarySync")])
     return md_files
 
-
 def choose_file(md_files):
-    choose_root = tk.Tk()
-    choose_root.title("Select File")
-    choose_root.geometry("700x700")
-    scrollbar = tk.Scrollbar(choose_root)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    choose_root.wm_attributes("-type", "splash")  # WM
-    choose_root.wm_attributes("-topmost", 1)  # WM
+    #app = QApplication([])
 
-    listbox = tk.Listbox(choose_root, width=80, height=30, yscrollcommand=scrollbar.set)  # Adjust width and height as needed
+    choose_root = QWidget()
+    choose_root.setWindowTitle("Select File")
+    choose_root.setGeometry(100, 100, 700, 700)
 
-    listbox.pack()
+    layout = QVBoxLayout()
 
-    scrollbar.config(command=listbox.yview)
+    list_widget = QListWidget()
+    list_widget.setFixedWidth(400)
+    list_widget.setFixedHeight(400)
+    font = QFont()
+    font.setPointSize(20)
+    #font.setBold(True) 
 
-    for idx, file in enumerate(md_files, start=1):
-        listbox.insert(idx, file)
+    filtered_files = []
+    file_dict = {}
 
-    tk.Button(choose_root, text="Select", command=choose_root.quit).pack()
+    for file in md_files:
+        #list_widget.addItem(file)  # Get with Full path
+        if file.endswith('.enc.GitDiarySync'):
+            filename = file.split("/")[-1]
+            filtered_files.append(filename)
+            list_widget.addItem(filename)  # Add only the file name
+            file_dict[filename] = file
 
-    choose_root.mainloop()
+    print("md_files:", md_files)
+    print("filtered_files:", filtered_files)
+    print("File Dictionary:", file_dict)
 
-    choice = listbox.curselection()
+    layout.addWidget(list_widget)
 
-    if not choice:
-        choose_root.destroy()
-        return None
+    select_button = QPushButton("Select")
+    layout.addWidget(select_button)
 
-    selected_file = md_files[choice[0]]
-    choose_root.destroy()
+    selected_file = None 
+
+    def on_select():
+        nonlocal selected_file
+        selected_file_name = list_widget.selectedItems()[0].text()
+        selected_file = file_dict.get(selected_file_name, None)
+        if selected_file is None:
+            QMessageBox.warning(choose_root, "Warning", "File not found.")
+        else:
+            choose_root.close()
+
+    select_button.clicked.connect(on_select)
+    choose_root.setLayout(layout)
+
+    choose_root.show()
+    app.exec_()
+    
+    print(selected_file)
     return selected_file
-
-
+    
 def edit_n_view_mode(passwd, edit_mode):
     md_files = get_md_files_recursively()
     if not md_files:
@@ -593,7 +618,6 @@ def main():
     #global password
     FirstTime = False
     passwd = input_passwd(FirstTime)
-    #print(passwd)
     print("\n")
     copy_file("enc.GitDiarySync", ".tmp")
     with open(".tmp", 'r') as file:
@@ -601,8 +625,6 @@ def main():
 
     # login password check section  QMessageBox()
     content = HashPasswdAuthenticator("BcryptDec", passwd, encrypted_data)  # you can also try Pbkdf2tEnc
-    #print(content)
-    #print("==========","BcryptDec", passwd, encrypted_data)
     if content:
         close_timer = QTimer()
         success_message = QMessageBox()
