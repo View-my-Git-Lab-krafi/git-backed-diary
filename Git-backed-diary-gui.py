@@ -298,7 +298,7 @@ def copy_file(source_file, destination_file):
         print(f"An error occurred while copying the file: {e}")
 
 
-def view_mode_less():
+def view_mode_less(passwd, edit_mode):
     md_files = get_md_files_recursively()
 
     if not md_files:
@@ -478,7 +478,7 @@ def commit_to_git():
 
 
 
-def input_passwd():
+def input_passwd(FirstTime):
     global app
     if not app:
         app = QApplication(sys.argv) #  Create the QApplication instance
@@ -526,29 +526,34 @@ def input_passwd():
     def on_button_click():
         passwd = passwd_entry.text()
         window.close()
-        hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
-        print(hash_note)
-        with open("enc.GitDiarySync", 'w') as file:
-            file.write(hash_note)
-        msg_box = QMessageBox()
-        msg_box.setText("Setup completed. Start the program again.")
-        msg_box.exec_()
-        sys.exit()
+        if FirstTime:
+            hash_note = HashPasswdAuthenticator("BcryptEnc", passwd , "NoHash")
+            print(hash_note)
+            with open("enc.GitDiarySync", 'w') as file:
+                file.write(hash_note)
+            msg_box = QMessageBox()
+            msg_box.setText("Setup completed. Start the program again.")
+            msg_box.exec_()
+            sys.exit()
+        else:
+            pass
+            
 
     check_button.clicked.connect(on_button_click)
     passwd_entry.returnPressed.connect(on_button_click)
-
     window.show()
     app.exec_()
 
-    return entered_passwd
+    passwd = passwd_entry.text()
+    return passwd_entry.text()
 
 
 def input_pass_now_first_time(wel_root):
     wel_root.hide()
     #wel_root.close()
     #app.quit()
-    input_passwd()
+    FirstTime = True
+    input_passwd(FirstTime)
 
 def first_time_welcome_screen():
     global app
@@ -580,12 +585,17 @@ def close_window(window):
 
 
 def main():
+    global app
+    app = None
+    #if not app:
+    #    app = QApplication(sys.argv)
     if not os.path.exists("enc.GitDiarySync"):
         first_time_welcome_screen()
     print("\n\nWelcome to the Git-backed-diary application!\n")
     #global password
-
-    passwd = input_passwd()
+    FirstTime = False
+    passwd = input_passwd(FirstTime)
+    #print(passwd)
     print("\n")
     copy_file("enc.GitDiarySync", ".tmp")
     with open(".tmp", 'r') as file:
@@ -593,10 +603,8 @@ def main():
 
     # login password check section  QMessageBox()
     content = HashPasswdAuthenticator("BcryptDec", passwd, encrypted_data)  # you can also try Pbkdf2tEnc
-    global app
-    app = None
-    if not app:
-        app = QApplication(sys.argv)
+    #print(content)
+    #print("==========","BcryptDec", passwd, encrypted_data)
     if content:
         close_timer = QTimer()
         success_message = QMessageBox()
@@ -640,7 +648,7 @@ def main():
                  #view mode
                 edit_n_view_mode(passwd, edit_mode=False)
             elif choice == "5":
-                view_mode_less()
+                view_mode_less(passwd, edit_mode=False)
             elif choice == "6":
                 root.quit()
                 sys.exit()
