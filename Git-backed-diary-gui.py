@@ -407,30 +407,82 @@ def choose_file(md_files):
     filtered_files = []
     file_dict = {}
 
+    highlighted_dates = []
+    dates = []
+    for file_path in file_dict.values(): # split date
+        date = file_path.split('/')[-1][:10]
+        dates.append(date)
+
     for file in md_files:
         #list_widget.addItem(file)  # Get with Full path
+        filename = file.split("/")[-1] # filename 
         if file.endswith('.enc.GitDiarySync'):
-            filename = file.split("/")[-1]
-            filtered_files.append(filename)
-            list_widget.addItem(filename)  # Add only the file name
-            file_dict[filename] = file
+            filtered_files.append(filename) # ['filename']
+            list_widget.addItem(filename)  # Add only the file name (bin)
+            file_dict[filename] = file #file is full path
 
-    print("md_files:", md_files)
-    print("filtered_files:", filtered_files)
-    print("File Dictionary:", file_dict)
+            #lets lighlight whatever date found 
+            date = filename.split('/')[-1][:10]  # "2023-11-03"
+            year, month, day = map(int, date.split('-'))
+            highlighted_dates.append(QDate(year, month, day))
 
-    calendar_widget = QCalendarWidget()
-    layout.addWidget(calendar_widget)
+    #print("md_files:", md_files)
+    #print("filtered_files:", filtered_files)
+    #print("File Dictionary:", file_dict)
+
     layout.addWidget(list_widget)
 	
-    # Highlight specific dates
-    highlighted_dates = [QDate(2023, 11, 10), QDate(2023, 11, 15)]
+    def print_selected_date(selected_date):
+
+        year = selected_date.year()
+        month = selected_date.month()
+        day = selected_date.day()
+        filenamer = f"{year}-{month:02d}-{day:02d}"
+        filenamestr = str(filenamer)
+
+        list_widget.clear()
+        for file in md_files:
+            #list_widget.addItem(file)  # Get with Full path
+            filename = file.split("/")[-1] # filename 
+            if filename.endswith('.enc.GitDiarySync') and filename.startswith(filenamestr):
+                filtered_files.append(filename) # ['filename']
+                list_widget.addItem(filename)  # Add only the file name (bin)
+                file_dict[filename] = file #file is full path
+                
+                #lets lighlight whatever date found 
+                date = filename.split('/')[-1][:10]  # "2023-11-03"
+                year, month, day = map(int, date.split('-'))
+                highlighted_dates.append(QDate(year, month, day))
+                
+
+    calendar_widget = QCalendarWidget()
+    
     for date in highlighted_dates:
         date_format = calendar_widget.dateTextFormat(date)
-        date_format.setBackground(Qt.red)
+        semiTransparentYellows = [
+            QColor(255, 255, 0, 51),
+            QColor(255, 255, 0, 102),
+            QColor(255, 255, 0, 153),
+            QColor(255, 255, 0, 204),
+            QColor(255, 255, 0, 255)
+        ]
+        current_color = date_format.background().color().rgba()
+        for i, color in enumerate(semiTransparentYellows):
+            if current_color == color.rgba():
+                next_index = (i + 1) % len(semiTransparentYellows)
+                date_format.setBackground(semiTransparentYellows[next_index])
+                break
+        else:
+            date_format.setBackground(semiTransparentYellows[0])
+
         calendar_widget.setDateTextFormat(date, date_format)
+
+    layout.addWidget(calendar_widget)
     select_button = QPushButton("Select")
     layout.addWidget(select_button)
+
+    calendar_widget.clicked.connect(lambda date: print_selected_date(date))
+
 
     selected_file = None 
 
