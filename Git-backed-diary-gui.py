@@ -20,20 +20,17 @@ from PySide2 import QtWidgets, QtGui
 from Crypto.Random import get_random_bytes
 from PySide2 import QtWidgets, QtGui, QtCore
 from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
-from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit)
-from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton)
+from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit,QCalendarWidget)
+from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton, QListWidget)
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
-from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer
+from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
 from text_editor.VarDataEncryptor import start_var_data_encryptor
 from text_editor.markdown_highlighter import MarkdownHighlighter
 from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
-from PySide2.QtWidgets import QApplication, QMainWindow, QListWidget, QPushButton
-from PySide2.QtWidgets import QApplication, QWidget, QVBoxLayout, QListWidget, QPushButton, QCalendarWidget, QMessageBox
-from PySide2.QtCore import QDate, Qt
 
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
@@ -507,7 +504,17 @@ def choose_file(md_files):
 def edit_n_view_mode(passwd, edit_mode):
     md_files = get_md_files_recursively()
     if not md_files:
-        print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
+
+        global app
+        if not app:
+            app = QApplication(sys.argv)
+
+        message_box = QMessageBox()
+        message_box.setWindowTitle("Information")
+        message_box.setText("No .enc.GitDiarySync files found in the current directory or its subdirectories. Add a Diary page")
+        message_box.setIcon(QMessageBox.Information)
+        message_box.exec_()
+        #print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
         return
 
     selected_file = choose_file(md_files)
@@ -517,7 +524,7 @@ def edit_n_view_mode(passwd, edit_mode):
         with open(temp_decrypted_file, "r") as file:
             bytes_data = file.read()
         bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, passwd)
-        global app
+        #global app
         if not app:
             app = QApplication(sys.argv)
         if not edit_mode:  # view_mode
@@ -752,11 +759,11 @@ def main():
         button_frame.pack()
 
         button_labels = {
-            "1": "Create Entry",
-            "2": "Commit to Git",
+            "1": "Add Diary Page",
+            "2": "Sync with Git",
             "3": "Edit Mode",
-            "4": "View Mode (GUI)",
-            "5": "View Mode (Less)",
+            "4": "View Mode",
+            "5": "View Mode (CLI)",
             "6": "Quit"}
 
         for i in range(1, 7):
