@@ -635,20 +635,8 @@ def input_passwd(FirstTime):
     return passwd_entry.text()
 
 
-def rename_git_directory():
-    old_name = '.git'
-    new_name = '.dev.git'
-    
-    try:
-        os.rename(old_name, new_name)
-        print(f"Renamed '{old_name}' to '{new_name}'.")
-    except FileNotFoundError:
-        print(f"'{old_name}' not found in the current directory. Rename operation failed.")
-
-
 def input_pass_now_first_time(wel_root):
 
-    rename_git_directory()
     wel_root.hide()
     #wel_root.close()
     #app.quit()
