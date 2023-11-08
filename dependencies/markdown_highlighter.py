@@ -1,11 +1,11 @@
 
-from PySide2 import QtWidgets, QtGui
-from PySide2 import QtWidgets, QtGui, QtCore
-from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog)
-from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton)
-from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
-from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
-from PySide2.QtCore import Qt, QRegularExpression, QPoint
+from PySide6 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui, QtCore
+from PySide6.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog)
+from PySide6.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton)
+from PySide6.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
+from PySide6.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
+from PySide6.QtCore import Qt, QRegularExpression, QPoint
 
 
 class MarkdownHighlighter(QSyntaxHighlighter):
