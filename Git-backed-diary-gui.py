@@ -562,19 +562,7 @@ def edit_n_view_mode(passwd, edit_mode):
 def commit_to_git():
     #from dependencies.GitSync import git_commands
     git_commands()
-    commit_message = "Git-backed-diary\n"
-    # commit_message = input("Enter a commit message for Git:\n")
-    subprocess.run(["git", "add", "*.enc.GitDiarySync"])
-    subprocess.run(["git", "commit", "-m", commit_message])
-    store_credentials = input("Do you want to store your Git credentials? (y/n): ")
-    if store_credentials.lower() == "y":
-        subprocess.run(["git", "config", "--global", "credential.helper", "store"])
-    else:
-        pass
-    subprocess.run(["git", "push"])
-    print("Changes committed and pushed to Git repository.")
-
-
+    
 def input_passwd(FirstTime):
     global app
     if not app:
