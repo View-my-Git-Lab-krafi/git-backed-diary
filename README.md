@@ -1,4 +1,4 @@
-`pip install markdown2 pycryptodome PySide2 tkinter`
+`pip install markdown2 pycryptodome PySide2 crypto bcrypt passlibtkinter webbrowser `
 
 ## Update news
 i was trying to rewrite this project to godot to make it cross platform also good UI
@@ -7,9 +7,24 @@ https://gitlab.com/krafi/magic-memory-mark.git
 https://github.com/touilleMan/godot-python/issues/396
 
 ## Git Backed Diary: Where Memories and Security Meet
-<p>Welcome to Git Backed Diary, your personal haven for memories and musings. This innovative Python application, adorned with the charming powers of PySide2 and the classic elegance of Tkinter, offers you a captivating diary experience like no other.
+<p>Welcome to Git Backed Diary, your personal haven for memories and musings. This innovative Python application, adorned with the charming powers of PySide2 and the classic elegance of Tkinter, offers you a captivating diary experience like no other., a simple diary app that uses Git for version control. You can fork the project, add your diary entries, and synchronize them with GitHub or GitLab using this app.
 </p>
 
+## Getting Started
+
+1. **Fork the Project**: Start by forking this repository to your own GitHub or GitLab account. You can do this by clicking the "Fork" button at the top right of the repository page.
+
+2. **Download the App**: Clone your forked repository to your local machine using Git. (Do not clone from this main repo , you cant sync)
+
+3. **Add Your Diary Entries**: Create a new diary page or modify existing ones in the app. You can use a simple text editor or your preferred markdown editor.
+
+4. **Read Entries Using the Calendar**: Use the built-in calendar feature to browse and read your diary entries by date.
+
+5. **Git Sync**: To store your diary entries on GitHub or GitLab, just press the Git Sync button.This will push your changes to your forked repository on the remote server.
+
+6. **Enjoy**: You've successfully added and synchronized your diary entries using Git! Enjoy using your Git-Backed Diary App.
+
+## Contribute
 ## Unveiling Unparalleled Features
 
 
