@@ -6,14 +6,20 @@ def git_commands():
         batch_script = '''
         @echo off
         git add .
-        git commit -m "update"
+        git commit -m "Git-backed-diary"
 
-        set /p store_credentials=Do you want to store your Git credentials? (y/n):
-        if "%store_credentials%" == "y" (
-            echo hi
+        git config --get credential.helper > nul
+        if %errorlevel% equ 0 (
+            echo Git credentials are already stored.
+        ) else (
+            set /p store_credentials=Do you want to store your Git credentials? (y/n):
+            if "%store_credentials%" == "y" (
+                git config --global credential.helper store
+            )
         )
         git push
-        pause
+        echo Press any key to continue...
+        pause >nul
         '''
         with open("temp_script.bat", "w") as script_file:
             script_file.write(batch_script)
@@ -23,15 +29,22 @@ def git_commands():
         #!/bin/bash
 
         git add .
-        git commit -m "update"
+        git commit -m "Git-backed-diary"
 
-        read -p "Do you want to store your Git credentials? (y/n): " store_credentials
-
-        if [ "$store_credentials" = "y" ]; then
-            echo "hi"
+        git config --get credential.helper
+        if [ $? -eq 0 ]; then
+            echo "Git credentials are already stored."
+        else
+            read -p "Do you want to store your Git credentials? (y/n): " store_credentials
+            if [ "$store_credentials" = "y" ]; then
+                git config --global credential.helper store
+            fi
         fi
         git push
+        echo "Press Enter to continue...(ZSH)"
+        read
         '''
+
         script_filename = "temp_script.sh"
         with open(script_filename, "w") as script_file:
             script_file.write(script_content)
