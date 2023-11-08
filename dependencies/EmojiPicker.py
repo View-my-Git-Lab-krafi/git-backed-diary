@@ -1,9 +1,9 @@
 from functools import partial
-from PySide6 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
-from PySide6.QtGui import QTextCursor, QFont, QIcon
-from PySide6.QtCore import Qt, QPoint
+from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
+from PySide2.QtGui import QTextCursor, QFont, QIcon
+from PySide2.QtCore import Qt, QPoint
 
 from dependencies.emoji_data import categories
 
