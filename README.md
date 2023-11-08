@@ -1,3 +1,7 @@
+
+for changing main menu whole program strature need to rewrite i dont have plan to do it right now,
+if you want to work great
+
 `pip install markdown2 pycryptodome PySide2 tkinter`
 
 ## Update news
