@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout,
 from PySide2.QtGui import QTextCursor, QFont, QIcon
 from PySide2.QtCore import Qt, QPoint
 
-from text_editor.emoji_data import categories
+from dependencies.emoji_data import categories
 
 class EmojiPicker(QtWidgets.QWidget):
     def __init__(self, parent=None):
