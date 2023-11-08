@@ -1,4 +1,5 @@
-`pip install markdown2 pycryptodome PySide2 crypto bcrypt passlib
+
+`pip install markdown2 pycryptodome PySide2 crypto bcrypt passlib`
 
 ## Update news
 i was trying to rewrite this project to godot to make it cross platform also good UI
