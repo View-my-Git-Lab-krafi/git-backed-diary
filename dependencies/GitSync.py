@@ -5,7 +5,7 @@ def git_commands():
     if platform.system() == 'Windows':
         batch_script = '''
         @echo off
-        git add .
+        git add *.enc.GitDiarySync
         git commit -m "Git-backed-diary"
 
         git config --get credential.helper > nul
@@ -28,7 +28,7 @@ def git_commands():
         script_content = '''
         #!/bin/bash
 
-        git add .
+        git add *.enc.GitDiarySync
         git commit -m "Git-backed-diary"
 
         git config --get credential.helper
