@@ -60,5 +60,3 @@ def git_commands():
             print("No supported terminal found to execute the script.")
 
         subprocess.run(['rm', script_filename])
-
-git_commands()

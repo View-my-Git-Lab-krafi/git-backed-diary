@@ -560,7 +560,9 @@ def edit_n_view_mode(passwd, edit_mode):
 
 
 def commit_to_git():
-    GitSync.git_commands()
+    #from dependencies.GitSync import git_commands
+
+    git_commands()
     commit_message = "Git-backed-diary\n"
     # commit_message = input("Enter a commit message for Git:\n")
     subprocess.run(["git", "add", "*.enc.GitDiarySync"])
