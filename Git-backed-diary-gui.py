@@ -28,11 +28,12 @@ from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
 from PySide2 import QtWidgets, QtGui, QtCore
 
 #  local file import
-from text_editor.emoji_data import categories
-from text_editor.EmojiPicker import EmojiPicker
-from text_editor.VarDataEncryptor import start_var_data_encryptor
-from text_editor.markdown_highlighter import MarkdownHighlighter
-from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
+from dependencies.emoji_data import categories
+from dependencies.EmojiPicker import EmojiPicker
+from dependencies.VarDataEncryptor import start_var_data_encryptor
+from dependencies.markdown_highlighter import MarkdownHighlighter
+from dependencies.HashPasswordAuthenticator import HashPasswdAuthenticator
+from dependencies.GitSync import git_commands
 
 class MagicMemoryMarkTextEditor(QMainWindow):
     def __init__(self):
@@ -559,6 +560,7 @@ def edit_n_view_mode(passwd, edit_mode):
 
 
 def commit_to_git():
+    GitSync.git_commands()
     commit_message = "Git-backed-diary\n"
     # commit_message = input("Enter a commit message for Git:\n")
     subprocess.run(["git", "add", "*.enc.GitDiarySync"])

@@ -1,9 +1,8 @@
 import subprocess
 import platform
 
-def execute_commands():
+def git_commands():
     if platform.system() == 'Windows':
-        # The Windows script remains the same
         batch_script = '''
         @echo off
         git add .
@@ -37,10 +36,20 @@ def execute_commands():
         with open(script_filename, "w") as script_file:
             script_file.write(script_content)
 
-        # List of commonly used terminal emulators on Linux
-        terminal_emulators = ['xterm', 'gnome-terminal', 'konsole', 'terminator', 'mate-terminal']
+        terminal_emulators = ['xterm', 'gnome-terminal', 'konsole', 'terminator', 'mate-terminal',
+                            'rxvt', 'st', 'alacritty', 'tilix', 'guake',
+                            'lilyterm', 'cool-retro-term', 'xfce4-terminal', 'terminology', 'kitty',
+                            'stjerm', 'sakura', 'tilda', 'yakuake', 'eterm',
+                            'hyper', 'roxterm', 'xfce4-terminal', 'liri-terminal', 'pangoterm',
+                            'finalterm', 'tilda', 'terminology', 'sakura', 'qterminal',
+                            'turbostation', 'guake', 'termite', 'ROXTerm', 'eterm', 
+                            'lxterminal', 'mate-terminal', 'PonTTY', 'DDE Terminal', 'PTerm',
+                            'Tilda', 'QTerminal', 'pterm', 'kitty', 'mlterm', 'tilix',
+                            'Termix', 'Yakuake', 'fbterm', 'terminix', 'Yakuake',
+                            'Terminex', 'Cairo', 'Deepin Terminal', 'Tilix', 'Terminix',
+                            'Foot', 'Sway Terminal', 'Twin', 'Pantheon Terminal'
+                            ]
 
-        # Try different terminal emulators if xterm is not available
         for terminal in terminal_emulators:
             try:
                 subprocess.run([terminal, '-e', 'bash', script_filename])
@@ -52,19 +61,4 @@ def execute_commands():
 
         subprocess.run(['rm', script_filename])
 
-execute_commands()
-
-
-
-
-
-
-'''
-#!/bin/bash
-
-read -p "Do you want to store your Git credentials? (y/n): " store_credentials
-
-if [ "$store_credentials" = "y" ]; then
-    git config --global credential.helper store
-fi
-'''
+git_commands()
