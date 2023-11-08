@@ -1,4 +1,3 @@
-
 `pip install markdown2 pycryptodome PySide2 crypto bcrypt passlib`
 
 ## Update news
@@ -64,4 +63,8 @@ Git Backed Diary dances under the enchanting moonlight of the GPL-3.0 License. F
 
 
 
+For this stable release i will give a venv file
 
+https://gitlab.com/krafi/git-backed-diary/-/tree/f4a43cc0f091b4b126bf831c29b181c0fa45a525 
+
+https://drive.google.com/file/d/1Jj2-_Qr_jRQY0G8omzUS6AY7n3fbFEUA/view?usp=sharing
