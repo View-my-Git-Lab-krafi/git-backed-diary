@@ -13,19 +13,20 @@ import webbrowser
 import http.server
 import socketserver
 import tkinter as tk
+from tkinter import ttk
+from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
 from functools import partial
 from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
-from PySide2 import QtWidgets, QtGui
 from Crypto.Random import get_random_bytes
-from PySide2 import QtWidgets, QtGui, QtCore
-from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
+from PySide2 import QtWidgets, QtGui
 from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit,QCalendarWidget)
 from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton, QListWidget)
-from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
-from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
+from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent, QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
+from PySide2 import QtWidgets, QtGui, QtCore
+
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
@@ -158,11 +159,11 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.toolbar.addWidget(spacer)
 
-        # Exit Button
-        self.exit_action = QAction(QIcon.fromTheme("application-exit"), "Exit", self)
-        self.exit_action.triggered.connect(self.confirm_exit)
-        self.exit_action.setShortcut(QKeySequence.Quit)
-        self.toolbar.addAction(self.exit_action)
+        # Exit Button (exit work same as Save)
+        #self.exit_action = QAction(QIcon.fromTheme("application-exit"), "Exit", self)
+        #self.exit_action.triggered.connect(self.confirm_exit)
+        #self.exit_action.setShortcut(QKeySequence.Quit)
+        #self.toolbar.addAction(self.exit_action)
 
         self.emoji_picker = EmojiPicker(parent=self)
         self.emoji_picker.setGeometry(10, 50, 500, 400)
@@ -558,16 +559,17 @@ def edit_n_view_mode(passwd, edit_mode):
 
 
 def commit_to_git():
-    commit_message = input("Enter a commit message for Git:\n")
+    commit_message = "Git-backed-diary\n"
+    # commit_message = input("Enter a commit message for Git:\n")
     subprocess.run(["git", "add", "*.enc.GitDiarySync"])
     subprocess.run(["git", "commit", "-m", commit_message])
-#    git config --global credential.helper store
-
-    subprocess.run(["git", "config", "--global", "credential.helper", "store"])
+    store_credentials = input("Do you want to store your Git credentials? (y/n): ")
+    if store_credentials.lower() == "y":
+        subprocess.run(["git", "config", "--global", "credential.helper", "store"])
+    else:
+        pass
     subprocess.run(["git", "push"])
-
     print("Changes committed and pushed to Git repository.")
-
 
 
 def input_passwd(FirstTime):
@@ -730,8 +732,7 @@ def main():
                 create_entry(passwd)
             elif choice == "2":
                 commit_to_git()
-            elif choice == "3":
-                
+            elif choice == "3":                
                 edit_n_view_mode(passwd, edit_mode=True)
             elif choice == "4":
                  #view mode
@@ -749,14 +750,21 @@ def main():
         root.wm_attributes("-type", "splash")  # WM
         root.wm_attributes("-topmost", 1)  # WM
 
-        prompt_label = tk.Label(root, text="Press a number key (1/2/3/4/5/6):")
-        prompt_label.pack()
-        output_label = tk.Label(root, text="")
-        output_label.pack()
+        style = ttk.Style() 
+        style.theme_use('clam')
+        
+        style.configure('TFrame', background='#ffdab9') # corner part
+        root.configure(background='#ffdab9') #background
+        style.configure('.', background='#ffe2c6') #button
 
+        prompt_label = ttk.Label(root, text="Press a number key (1/2/3/4/5/6):")
+        prompt_label.pack()
+        output_label = ttk.Label(root, text="")
+        output_label.pack()
+        
         root.bind("<Key>", handle_choice)
 
-        button_frame = tk.Frame(root)
+        button_frame = ttk.Frame(root)
         button_frame.pack()
 
         button_labels = {
@@ -768,10 +776,11 @@ def main():
             "6": "Quit"}
 
         for i in range(1, 7):
-            button = tk.Button(button_frame, text=str(i) + " - " + button_labels[str(i)], command=lambda i=i: handle_button_click(str(i)))
+            button = ttk.Button(button_frame, text=str(i) + " - " + button_labels[str(i)], command=lambda i=i: handle_button_click(str(i)))            
             button.pack(side="top")
 
         root.mainloop()
+
 
 if __name__ == "__main__":
     main()
