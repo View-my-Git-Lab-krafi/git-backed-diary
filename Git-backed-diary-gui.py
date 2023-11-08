@@ -590,8 +590,9 @@ def input_passwd(FirstTime):
     window.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint)
     window.setWindowFlags(Qt.Dialog)
     
-    #screen_resolution = app.primaryScreen().geometry()
-    screen_resolution = app.desktop().screenGeometry()
+    screen_resolution = app.primaryScreen().geometry()
+    #screen_resolution = app.desktop().screenGeometry()
+    
     width, height = 400, 200
     x = (screen_resolution.width() - width) // 2
     y = (screen_resolution.height() - height) // 2
