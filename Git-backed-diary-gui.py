@@ -17,15 +17,20 @@ from functools import partial
 from datetime import datetime
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
-from PySide2 import QtWidgets, QtGui
-from Crypto.Random import get_random_bytes
 from PySide2 import QtWidgets, QtGui, QtCore
+from Crypto.Random import get_random_bytes
 from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
 from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit,QCalendarWidget)
 from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton, QListWidget)
 from PySide2.QtGui import QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
 from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent
 from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
+
+from PySide2.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QLabel, QPushButton
+from PySide2.QtGui import QKeySequence
+from PySide2.QtCore import QObject, Signal
+
+
 #  local file import
 from text_editor.emoji_data import categories
 from text_editor.EmojiPicker import EmojiPicker
@@ -33,12 +38,14 @@ from text_editor.VarDataEncryptor import start_var_data_encryptor
 from text_editor.markdown_highlighter import MarkdownHighlighter
 from text_editor.HashPasswordAuthenticator import HashPasswdAuthenticator
 
+
 class MagicMemoryMarkTextEditor(QMainWindow):
-    def __init__(self):
+    def __init__(self, passwd , choice):
         super().__init__()
         self.init_ui()
         self.http_server = None
-
+        self.selfpasswd = passwd
+        self.selfchoice = choice
     def increase_font_size(self):
         current_font = self.text_widget.currentFont()
         point_size = current_font.pointSize()
@@ -84,8 +91,8 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         self.save_action.setShortcut(QKeySequence.Save)
         self.save_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
 
-        self.save_action.triggered.connect(self.confirm_save_exit)
-        self.save_action.setShortcut(QKeySequence.Quit)
+        #self.save_action.triggered.connect(self.confirm_save_exit)
+        #self.save_action.setShortcut(QKeySequence.Quit)
 
         self.open_action = QAction(QIcon.fromTheme("document-open"), "Open", self)
         self.open_action.triggered.connect(self.open_file)
@@ -259,17 +266,16 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         self.text_widget.setPlainText(content)
 
     def save_text(self):
-        # global text
-        text = self.text_widget.toPlainText()
-        return text
+
+        reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to return to program? \n Press 'no' if you still want to edit.")
+        if reply:
+            text = self.text_widget.toPlainText()
+            self.close()
+            Process(self.selfpasswd, text ,self.selfchoice)
+            #return text
 
     def confirm_exit(self):
         reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to exit?")
-        if reply:
-            self.close()
-
-    def confirm_save_exit(self):
-        reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to return to program? \n Press 'no' if you still want to edit.")
         if reply:
             self.close()
 
@@ -298,7 +304,114 @@ def copy_file(source_file, destination_file):
         print(f"An error occurred while copying the file: {e}")
 
 
-def view_mode_less(passwd, edit_mode):
+def Process(passwd, text, choice):
+ 
+    if choice == "1":
+        create_entry(passwd, text)
+    elif choice == "2":
+        commit_to_git()
+    elif choice == "3":
+        edit_n_view_mode(passwd,text, edit_mode=True) 
+    elif choice == "4":
+        edit_n_view_mode(passwd,text, edit_mode=False)  
+    elif choice == "5":
+        view_mode_less(passwd)  
+    elif choice == "6":
+        QtWidgets.qApp.quit()
+        sys.exit()
+    else:
+        self.output_label.setText("Invalid choice. Please try again.")
+    
+
+def create_entry(passwd, note):
+    #QApplication.quit()
+    now = datetime.now()
+    entry_date = now.strftime("%Y-%m-%d")
+    entry_time = now.strftime("%H:%M:%S")
+    entry_datetime = f"{entry_date} \n{entry_time}\n"  # new one
+    print(note)
+    saved_text = note
+
+    join_date_and_note = f"\n{entry_datetime}\n{saved_text}"
+
+    file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
+
+    if file_name_input:
+        print("File name entered:", file_name_input)
+    else: 
+        file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
+    sanitized_file_name = "".join(c if c.isalnum() else "-" for c in file_name_input.lower())
+    filename = f"{entry_date}-{sanitized_file_name}.enc.GitDiarySync"
+    write_path = (".enc.GitDiarySync/" + now.strftime("%b-%Y") + "/" + now.strftime("%d"))
+    if not os.path.exists(write_path):
+        os.makedirs(write_path)
+
+    entry_file_path = os.path.join(write_path, filename)
+    enc_note = start_var_data_encryptor("enc", join_date_and_note, passwd)
+
+    with open(entry_file_path, "w") as file:  # error
+        file.write(enc_note)
+    print(f"Diary entry saved to {entry_file_path}")
+
+
+def edit_n_view_mode(passwd,note, edit_mode):
+    print("as")
+    md_files = get_md_files_recursively()
+    if not md_files:
+
+        global app
+        if not app:
+            app = QApplication(sys.argv)
+
+        message_box = QMessageBox()
+        message_box.setWindowTitle("Information")
+        message_box.setText("No .enc.GitDiarySync files found in the current directory or its subdirectories. Add a Diary page")
+        message_box.setIcon(QMessageBox.Information)
+        message_box.exec_()
+        #print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
+        return
+
+    selected_file = choose_file(md_files)
+    if selected_file:
+        temp_decrypted_file = ".tmp"
+        copy_file(selected_file, temp_decrypted_file)
+        with open(temp_decrypted_file, "r") as file:
+            bytes_data = file.read()
+        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, passwd)
+        #global app
+        if not app:
+            app = QApplication(sys.argv)
+        if not edit_mode:  # view_mode
+            read_only_warning = QMessageBox()
+            read_only_warning.setWindowTitle("Read-Only Mode")
+            read_only_warning.setIcon(QMessageBox.Warning)
+            read_only_warning.setText(
+                "Note: You have opened this file in read-only mode. Any attempt to save will not be successful.")
+            read_only_warning.exec_()
+
+        editor = note
+        #editor =  MagicMemoryMarkTextEditor()
+        #editor.var_to_editor(bytes_data_to_str)
+        #editor.show()
+        #app.exec_()
+
+        if edit_mode:
+            dec_note = editor
+            the_saved_text = dec_note.save_text()
+            last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
+            total_note = f"{the_saved_text} {last_modified_date_string}"
+            enc_note = start_var_data_encryptor("enc", total_note, passwd)
+
+            with open(temp_decrypted_file, "w") as file:
+                file.write(enc_note)
+            copy_file(temp_decrypted_file, selected_file)
+
+        secure_delete_file(temp_decrypted_file)
+
+
+
+def view_mode_less(passwd):
     md_files = get_md_files_recursively()
 
     if not md_files:
@@ -337,47 +450,6 @@ def view_mode_less(passwd, edit_mode):
     except ValueError:
         print("Invalid input. Please enter a number.")
 
-
-def start_magic_memory_mark_editor():
-    global app
-    if not app:
-        app = QApplication(sys.argv) #  Create the QApplication instance
-    editor = MagicMemoryMarkTextEditor()
-    editor.show()
-    app.exec_()
-    app.quit()
-    return editor
-
-
-
-def create_entry(passwd):
-    now = datetime.now()
-    entry_date = now.strftime("%Y-%m-%d")
-    entry_time = now.strftime("%H:%M:%S")
-    entry_datetime = f"{entry_date} \n{entry_time}\n"  # new one
-    note = start_magic_memory_mark_editor()
-    saved_text = note.save_text()
-
-    join_date_and_note = f"\n{entry_datetime}\n{saved_text}"
-
-    file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
-
-    if file_name_input:
-        print("File name entered:", file_name_input)
-    else: 
-        file_name_input = simpledialog.askstring("File Name", "Enter a file name for the diary entry:")
-    sanitized_file_name = "".join(c if c.isalnum() else "-" for c in file_name_input.lower())
-    filename = f"{entry_date}-{sanitized_file_name}.enc.GitDiarySync"
-    write_path = (".enc.GitDiarySync/" + now.strftime("%b-%Y") + "/" + now.strftime("%d"))
-    if not os.path.exists(write_path):
-        os.makedirs(write_path)
-
-    entry_file_path = os.path.join(write_path, filename)
-    enc_note = start_var_data_encryptor("enc", join_date_and_note, passwd)
-
-    with open(entry_file_path, "w") as file:  # error
-        file.write(enc_note)
-    print(f"Diary entry saved to {entry_file_path}")
 
 
 def get_md_files_recursively(directory="."):
@@ -502,61 +574,6 @@ def choose_file(md_files):
     print(selected_file)
     return selected_file
     
-def edit_n_view_mode(passwd, edit_mode):
-    md_files = get_md_files_recursively()
-    if not md_files:
-
-        global app
-        if not app:
-            app = QApplication(sys.argv)
-
-        message_box = QMessageBox()
-        message_box.setWindowTitle("Information")
-        message_box.setText("No .enc.GitDiarySync files found in the current directory or its subdirectories. Add a Diary page")
-        message_box.setIcon(QMessageBox.Information)
-        message_box.exec_()
-        #print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
-        return
-
-    selected_file = choose_file(md_files)
-    if selected_file:
-        temp_decrypted_file = ".tmp"
-        copy_file(selected_file, temp_decrypted_file)
-        with open(temp_decrypted_file, "r") as file:
-            bytes_data = file.read()
-        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, passwd)
-        #global app
-        if not app:
-            app = QApplication(sys.argv)
-        if not edit_mode:  # view_mode
-            read_only_warning = QMessageBox()
-            read_only_warning.setWindowTitle("Read-Only Mode")
-            read_only_warning.setIcon(QMessageBox.Warning)
-            read_only_warning.setText(
-                "Note: You have opened this file in read-only mode. Any attempt to save will not be successful.")
-            read_only_warning.exec_()
-
-        editor = MagicMemoryMarkTextEditor()
-        editor.var_to_editor(bytes_data_to_str)
-        editor.show()
-        app.exec_()
-
-        if edit_mode:
-            dec_note = editor
-            the_saved_text = dec_note.save_text()
-            last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
-            total_note = f"{the_saved_text} {last_modified_date_string}"
-            enc_note = start_var_data_encryptor("enc", total_note, passwd)
-
-            with open(temp_decrypted_file, "w") as file:
-                file.write(enc_note)
-            copy_file(temp_decrypted_file, selected_file)
-
-        secure_delete_file(temp_decrypted_file)
-
-
-
 def commit_to_git():
     commit_message = input("Enter a commit message for Git:\n")
     subprocess.run(["git", "add", "*.enc.GitDiarySync"])
@@ -720,44 +737,30 @@ def main():
     while True:
         secure_delete_file(".tmp")
 
-        def handle_choice(event):
-            choice = event.char
-            if choice in ["1", "2", "3", "4", "5", "6"]:
-                handle_button_click(choice)
+        #app = QtWidgets.QApplication(sys.argv)
+        menu_app = MenuApp(passwd)
+        sys.exit(app.exec_())
 
-        def handle_button_click(choice):
-            if choice == "1":
-                create_entry(passwd)
-            elif choice == "2":
-                commit_to_git()
-            elif choice == "3":
-                
-                edit_n_view_mode(passwd, edit_mode=True)
-            elif choice == "4":
-                 #view mode
-                edit_n_view_mode(passwd, edit_mode=False)
-            elif choice == "5":
-                view_mode_less(passwd, edit_mode=False)
-            elif choice == "6":
-                root.quit()
-                sys.exit()
-            else:
-                output_label.config(text="Invalid choice. Please try again.")
 
-        root = tk.Tk()
-        root.title("Menu")
-        root.wm_attributes("-type", "splash")  # WM
-        root.wm_attributes("-topmost", 1)  # WM
+class MenuApp(QMainWindow):
+    def __init__(self, passwd):
+        #print(passwd)
+        #.passwd = passwd
+        self.selfpasswd = passwd
+        super().__init__()
+        self.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowTitle("Menu")
+        self.setGeometry(100, 100, 800, 600)
+        
+        central_widget = QtWidgets.QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QtWidgets.QVBoxLayout(central_widget)
 
-        prompt_label = tk.Label(root, text="Press a number key (1/2/3/4/5/6):")
-        prompt_label.pack()
-        output_label = tk.Label(root, text="")
-        output_label.pack()
+        prompt_label = QtWidgets.QLabel("Press a number key (1/2/3/4/5/6):")
+        self.output_label = QtWidgets.QLabel()
 
-        root.bind("<Key>", handle_choice)
-
-        button_frame = tk.Frame(root)
-        button_frame.pack()
+        layout.addWidget(prompt_label)
+        layout.addWidget(self.output_label)
 
         button_labels = {
             "1": "Add Diary Page",
@@ -767,11 +770,59 @@ def main():
             "5": "View Mode (CLI)",
             "6": "Quit"}
 
-        for i in range(1, 7):
-            button = tk.Button(button_frame, text=str(i) + " - " + button_labels[str(i)], command=lambda i=i: handle_button_click(str(i)))
-            button.pack(side="top")
+        for i, j in button_labels.items():
+            #print(f"Key: {i}, Value: {j}")
+            label = button_labels[str(i)]
+            button = QtWidgets.QPushButton(f"{i} - {label}")
+            button.clicked.connect(self.create_button_click_handler(int(i), passwd))
+            layout.addWidget(button)
+        
+        self.show()
+        self.closeSignal = Signal()
 
-        root.mainloop()
+    def create_button_click_handler(self, label, passwd):
+        #print(passwd)
+        def button_click_handler():
+            self.handle_button_click(int(label),passwd)
+        return button_click_handler
 
+    def keyPressEvent(self, event):
+        key = event.key()
+        button_labels = {
+            Qt.Key_1: "1",
+            Qt.Key_2: "2",
+            Qt.Key_3: "3",
+            Qt.Key_4: "4",
+            Qt.Key_5: "5",
+            Qt.Key_6: "6"
+        }
+
+        if key in button_labels:
+            label = button_labels[key]
+            label = int(label)
+            self.handle_button_click(int(label), self.selfpasswd)
+
+    def handle_button_click(self, choice, passwd):
+        choice = int(choice)
+        print(choice)
+        if choice == "1":
+            #QApplication.quit()
+            self.note = MagicMemoryMarkTextEditor(passwd, choice)
+            self.note.show()
+            #create_entry(passwd, note)
+        elif choice == "2":
+            commit_to_git()
+        elif choice == "3":
+            edit_n_view_mode(passwd,text, edit_mode=True) 
+        elif choice == "4":
+            edit_n_view_mode(passwd,text, edit_mode=False)  
+        elif choice == "5":
+            view_mode_less(passwd)  
+        elif choice == "6":
+            QtWidgets.qApp.quit()
+            sys.exit()
+        else:
+            self.output_label.setText("Invalid choice. Please try again.")
+    
 if __name__ == "__main__":
     main()
