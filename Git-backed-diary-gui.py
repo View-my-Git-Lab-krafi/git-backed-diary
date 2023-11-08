@@ -561,7 +561,6 @@ def edit_n_view_mode(passwd, edit_mode):
 
 def commit_to_git():
     #from dependencies.GitSync import git_commands
-
     git_commands()
     commit_message = "Git-backed-diary\n"
     # commit_message = input("Enter a commit message for Git:\n")
@@ -646,7 +645,20 @@ def input_passwd(FirstTime):
     return passwd_entry.text()
 
 
+def rename_git_directory():
+    old_name = '.git'
+    new_name = '.dev.git'
+    
+    try:
+        os.rename(old_name, new_name)
+        print(f"Renamed '{old_name}' to '{new_name}'.")
+    except FileNotFoundError:
+        print(f"'{old_name}' not found in the current directory. Rename operation failed.")
+
+
 def input_pass_now_first_time(wel_root):
+
+    rename_git_directory()
     wel_root.hide()
     #wel_root.close()
     #app.quit()
@@ -767,10 +779,8 @@ def main():
         output_label.pack()
         
         root.bind("<Key>", handle_choice)
-
         button_frame = ttk.Frame(root)
         button_frame.pack()
-
         button_labels = {
             "1": "Add Diary Page",
             "2": "Sync with Git",
@@ -778,13 +788,9 @@ def main():
             "4": "View Mode",
             "5": "View Mode (CLI)",
             "6": "Quit"}
-
         for i in range(1, 7):
             button = ttk.Button(button_frame, text=str(i) + " - " + button_labels[str(i)], command=lambda i=i: handle_button_click(str(i)))            
             button.pack(side="top")
-
         root.mainloop()
-
-
 if __name__ == "__main__":
     main()
