@@ -19,13 +19,11 @@ from functools import partial
 from datetime import datetime
 
 #Crypto 1.4.1
+import crypto
+#from Crypto.Cipher import AES
+#from Crypto.Util.Padding import pad
+#from Crypto.Random import get_random_bytes
 
-from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad
-from Crypto.Random import get_random_bytes
-#from dependencies.Crypto.Cipher import AES
-#from dependencies.Crypto.Util.Padding import pad
-#from dependencies.Crypto.Random import get_random_bytes
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QMenuBar # QAction,
 from PySide6 import QtWidgets, QtGui
