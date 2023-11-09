@@ -68,3 +68,62 @@ def start_var_data_encryptor(worktype, data, passwd):
         return dec
 
 
+'''
+import os
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+import base64
+import getpass
+def generate_fernet_key():
+    return Fernet.generate_key()
+
+def generate_key_from_password(password, salt=None):
+    if salt is None:
+        salt = os.urandom(99)
+    kdf = PBKDF2HMAC(
+        algorithm=hashes.SHA512(),
+        iterations=900000,
+        salt=salt,
+        length=32
+    )
+    key = base64.urlsafe_b64encode(kdf.derive(password.encode()))
+    return key, salt
+
+def initialize_fernet(key):
+    return Fernet(key)
+
+def encrypt_data(data, key):
+    f = initialize_fernet(key)
+    encrypted_data = f.encrypt(data.encode())
+    return encrypted_data
+
+def decrypt_data(encrypted_data, key):
+    f = initialize_fernet(key)
+    decrypted_data = f.decrypt(encrypted_data)
+    return decrypted_data.decode()
+
+def start_var_data_encryptor(worktype, data, key):
+    if worktype == "enc":
+        enc = encrypt_data(data, key)
+        return enc
+    else:
+        dec = decrypt_data(data, key)
+        return dec
+
+# Get the password securely from the user
+password = getpass.getpass("Enter your password: ") 
+
+key, salt = generate_key_from_password(password)
+print("Generated key:", key)
+print("Salt:", salt)
+the_message_you_want_to_encrypt= input("Enter your message :")
+# Encrypt data
+encrypted_data = start_var_data_encryptor("enc", the_message_you_want_to_encrypt, key)
+print("Encrypted data:", encrypted_data)
+
+# Decrypt data
+decrypted_data = start_var_data_encryptor("dec", encrypted_data, key)
+print("Decrypted data:", decrypted_data)
+
+'''
