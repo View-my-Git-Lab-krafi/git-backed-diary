@@ -6,11 +6,10 @@ import hashlib
 #from Crypto.Random import get_random_bytes
 #from Crypto.Protocol.KDF import PBKDF2
 
-#from Crypto.Cipher import AES
-#from Crypto.Random import get_random_bytes
-#from Crypto.Protocol.KDF import PBKDF2
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Protocol.KDF import PBKDF2
 
-import crypto
 import getpass
 import bcrypt
 from passlib.hash import pbkdf2_sha512

@@ -304,6 +304,46 @@ class MagicMemoryMarkTextEditor(QMainWindow):
             self.save = False
             self.close()
 
+def secure_delete_file_plus(filename, passes=9):
+    def delete_file_on_linux(filename, passes):
+        os.system(f'shred -u -z -n {passes} {filename}')
+    
+    def delete_file_on_windows(filename, passes):
+        os.system(f'sdelete -p {passes} -z {filename}')
+    
+    try:
+        with open(filename, 'rb+') as f:
+            file_size = os.path.getsize(filename)
+            for _ in range(passes):
+                f.seek(0)
+                f.write(os.urandom(file_size))
+    except FileNotFoundError:
+        print(f"File not found: {filename}")
+    except Exception as e:
+        print(f"Error: {e}")
+    else:
+        try:
+            os.remove(filename)
+        except Exception as e:
+            print(f"Error while removing file: {e}")
+
+    current_platform = platform.system()
+
+    if current_platform == "Linux" or current_platform == "Unix":
+        delete_file_on_linux(filename, passes)
+    elif current_platform == "Windows":
+        delete_file_on_windows(filename, passes)
+    else:
+        global app
+        if not app:
+            app = QApplication(sys.argv) #  Create the QApplication instance
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Critical)
+        msg.setText("Unsupported platform. Cannot securely delete file.")
+        msg.setWindowTitle("Error")
+        msg.exec_()
+
+
 def secure_delete_file(filename, passes=9):
     try:
         with open(filename, 'rb+') as f:
@@ -314,7 +354,11 @@ def secure_delete_file(filename, passes=9):
         os.remove(filename)
     except FileNotFoundError:
         print(f"temp file not found, You are safe.")
-
+    try:
+        secure_delete_file_plus(filename)
+    except Exception as e:
+        print("Error on secure_delete_file_plus")
+        pass
 
 def copy_file(source_file, destination_file):
     try:
