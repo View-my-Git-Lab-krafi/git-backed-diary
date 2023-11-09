@@ -17,18 +17,26 @@ from tkinter import ttk
 from tkinter import messagebox, simpledialog, filedialog, messagebox, scrolledtext
 from functools import partial
 from datetime import datetime
+
+#Crypto 1.4.1
+
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from Crypto.Random import get_random_bytes
-from PySide2 import QtWidgets, QtGui
-from PySide2.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QAction, QFileDialog, QLineEdit,QCalendarWidget)
-from PySide2.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton, QListWidget)
-from PySide2.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent, QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
-from PySide2.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
-from PySide2 import QtWidgets, QtGui, QtCore
+#from dependencies.Crypto.Cipher import AES
+#from dependencies.Crypto.Util.Padding import pad
+#from dependencies.Crypto.Random import get_random_bytes
+
+from PySide6.QtWidgets import QApplication, QMainWindow, QMenu, QMenuBar # QAction,
+from PySide6 import QtWidgets, QtGui
+from PySide6.QtWidgets import (QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget,  QFileDialog, QLineEdit,QCalendarWidget)
+from PySide6.QtWidgets import (QFontComboBox, QToolBar, QMessageBox, QSizePolicy, QLabel, QComboBox, QMenu, QPushButton, QListWidget)
+from PySide6.QtGui import QFont, QSyntaxHighlighter, QIcon, QKeyEvent, QKeySequence, QColor, QPalette, QTextCursor, QTextCharFormat
+from PySide6.QtCore import Qt, QRegularExpression, QPoint , QTimer, QDate
+from PySide6 import QtWidgets, QtGui, QtCore
 
 #  local file import
-from dependencies.emoji_data import categories
+#from dependencies.emoji_data import categories
 from dependencies.EmojiPicker import EmojiPicker
 from dependencies.VarDataEncryptor import start_var_data_encryptor
 from dependencies.markdown_highlighter import MarkdownHighlighter
@@ -79,19 +87,8 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         self.text_widget.setFontPointSize(18)
         self.text_widget.setFont(QtGui.QFont("Noto Color Emoji", 18))
         # self.text_widget.setFont(QtGui.QFont("Noto", 18))
+        self.save = False
 
-        # Create actions for the toolbar and menu
-        self.save_action = QAction(QIcon.fromTheme("document-save"), "Save", self)
-        self.save_action.triggered.connect(self.save_text)
-        self.save_action.setShortcut(QKeySequence.Save)
-        self.save_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
-
-        self.save_action.triggered.connect(self.confirm_save_exit)
-        self.save_action.setShortcut(QKeySequence.Quit)
-
-        self.open_action = QAction(QIcon.fromTheme("document-open"), "Open", self)
-        self.open_action.triggered.connect(self.open_file)
-        self.open_action.setShortcut(QKeySequence.Open)
 
         # Create the toolbar
         self.toolbar = QToolBar("Toolbar")
@@ -117,15 +114,31 @@ class MagicMemoryMarkTextEditor(QMainWindow):
             }
         """)
 
-        self.toolbar.addAction(self.save_action)
-        self.toolbar.addAction(self.open_action)
+        # Create actions for the toolbar and menu
+
+
+        # Save Button
+        save_button = QPushButton("Save")
+        save_button.clicked.connect(self.saveNexit)
+        save_button.setIcon(QIcon.fromTheme("application-exit"))
+        self.toolbar.addWidget(save_button)
+
+
+
+        open_button = QPushButton("Open")
+        open_button.clicked.connect(self.open_file)
+        self.toolbar.addWidget(open_button)
+        #open_button.setStyleSheet("background-color: peachpuff; color: white; border: none; padding: 5px; border-radius: 5px;")
+        open_button.setStyleSheet(self.toolbar.styleSheet())
+
+
 
         # Bold Button
-        self.bold_action = QAction(QIcon.fromTheme("format-text-bold"), "Bold", self)
-        self.bold_action.triggered.connect(self.toggle_bold)
-        self.bold_action.setShortcut(QKeySequence.Bold)
-        self.toolbar.addAction(self.bold_action)
-        self.addToolBar(self.toolbar)
+        bold_button = QPushButton("Bold")
+        bold_button.clicked.connect(self.toggle_bold)
+        self.toolbar.addWidget(bold_button)
+        bold_button.setIcon(QIcon.fromTheme("format-text-bold"))
+
 
         # Set the central widget and layout
         layout = QVBoxLayout()
@@ -134,45 +147,61 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         container.setLayout(layout)
         self.setCentralWidget(container)
 
-        # Markdown Preview Button
-        self.preview_action = QAction(QIcon.fromTheme("text-html"), "Markdown Preview", self)
-        self.preview_action.triggered.connect(self.preview_markdown)
-        self.toolbar.addAction(self.preview_action)
-        self.addToolBar(self.toolbar)
+        # Bold Button
+        bold_button = QPushButton("Bold")
+        bold_button.clicked.connect(self.toggle_bold)
+        self.toolbar.addWidget(bold_button)
+        bold_button.setIcon(QIcon.fromTheme("format-text-bold"))
 
-        # Markdown syntax highlighting
-        self.highlighter = MarkdownHighlighter(self.text_widget.document())
+        # Markdown Preview Button
+        preview_button = QPushButton("Markdown Preview")
+        preview_button.clicked.connect(self.preview_markdown)
+        self.toolbar.addWidget(preview_button)
+        preview_button.setIcon(QIcon.fromTheme("text-html"))
+
 
         # Increase Font Size Button
-        self.increase_font_action = QAction(QIcon.fromTheme("format-font-size-more"), "+", self)
-        self.increase_font_action.triggered.connect(self.increase_font_size)
-        self.increase_font_action.setShortcut(QKeySequence("Ctrl++"))
-        self.toolbar.addAction(self.increase_font_action)
+        increase_font_button = QPushButton("+")
+        increase_font_button.clicked.connect(self.increase_font_size)
+        increase_font_button.setIcon(QIcon.fromTheme("format-font-size-less"))
+        self.toolbar.addWidget(increase_font_button)
 
         # Decrease Font Size Button
-        self.decrease_font_action = QAction(QIcon.fromTheme("format-font-size-less"), "-", self)
-        self.decrease_font_action.triggered.connect(self.decrease_font_size)
-        self.decrease_font_action.setShortcut(QKeySequence("Ctrl+-"))
-        self.toolbar.addAction(self.decrease_font_action)
+        decrease_font_button = QPushButton("-")
+        decrease_font_button.clicked.connect(self.decrease_font_size)
+        decrease_font_button.setIcon(QIcon.fromTheme("format-font-size-less"))
+        self.toolbar.addWidget(decrease_font_button)
+
 
         # Add a stretchable space
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.toolbar.addWidget(spacer)
 
-        # Exit Button (exit work same as Save)
-        #self.exit_action = QAction(QIcon.fromTheme("application-exit"), "Exit", self)
-        #self.exit_action.triggered.connect(self.confirm_exit)
-        #self.exit_action.setShortcut(QKeySequence.Quit)
-        #self.toolbar.addAction(self.exit_action)
+
+
+        exit_button = QPushButton("Exit")
+        exit_button.clicked.connect(self.Exit_without_save)
+        self.toolbar.addWidget(exit_button)
+        #exit_button.setStyleSheet("background-color: peachpuff; color: white; border: none; padding: 5px; border-radius: 5px;")
+        exit_button.setStyleSheet(self.toolbar.styleSheet())
+
+
 
         self.emoji_picker = EmojiPicker(parent=self)
         self.emoji_picker.setGeometry(10, 50, 500, 400)
         self.emoji_picker.hide()
 
-        self.emoji_action = QAction(QIcon.fromTheme("smile"), "😊Emoji", self)
-        self.emoji_action.triggered.connect(self.toggle_emoji_picker)
-        self.toolbar.addAction(self.emoji_action)
+
+        # Emoji Button
+        emoji_button = QPushButton("😊 Emoji")
+        emoji_button.clicked.connect(self.toggle_emoji_picker)
+        emoji_button.setIcon(QIcon.fromTheme("smile"))
+        self.toolbar.addWidget(emoji_button)
+
+        # Add the toolbar to the main window
+        self.addToolBar(self.toolbar)
+
 
         self.category_button = QtWidgets.QComboBox(self)
         self.category_button.addItems(list(self.emoji_picker.categories.keys()))
@@ -184,6 +213,7 @@ class MagicMemoryMarkTextEditor(QMainWindow):
         self.close_button.setGeometry(450, 5, 30, 30)
         self.close_button.setFont(QtGui.QFont("Arial", 18))
         self.close_button.clicked.connect(self.close_emoji_picker)
+
         # Add a stretchable space
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
@@ -229,10 +259,9 @@ class MagicMemoryMarkTextEditor(QMainWindow):
                 print(f"Error opening file: {str(e)}")
 
     def preview_markdown(self):
-        reply = tk.messagebox.askyesno("Warning", "Your note will be served on a local HTTP server. Are you sure you want to proceed?")
-        if reply:
+        reply = QMessageBox.question(self, "Warning", "Your note will be served on a local HTTP server. Are you sure you want to proceed?", QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
             markdown_text = self.text_widget.toPlainText()
-
             html_content = markdown2.markdown(markdown_text)
 
             server_thread = threading.Thread(target=self.serve_html_content, args=(html_content,))
@@ -240,7 +269,6 @@ class MagicMemoryMarkTextEditor(QMainWindow):
             server_thread.start()
         else:
             pass
-
     def serve_html_content(self, html_content):
         class InMemoryRequestHandler(http.server.SimpleHTTPRequestHandler):
             def do_GET(self):
@@ -260,21 +288,22 @@ class MagicMemoryMarkTextEditor(QMainWindow):
     def var_to_editor(self, content):
         self.text_widget.setPlainText(content)
 
-    def save_text(self):
-        # global text
+    def save_text(self):  # forward text
+        self.close()
         text = self.text_widget.toPlainText()
         return text
 
-    def confirm_exit(self):
-        reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to exit?")
-        if reply:
+    def saveNexit(self):
+        reply = QMessageBox.question(self, "Save Confirmation", "Are you sure you want to Save?", QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.save = True
             self.close()
 
-    def confirm_save_exit(self):
-        reply = tk.messagebox.askyesno("Exit Confirmation", "Are you sure you want to return to program? \n Press 'no' if you still want to edit.")
-        if reply:
+    def Exit_without_save(self):
+        reply = QMessageBox.question(self, "Exit Confirmation", "Are you sure you want to Exit without save?", QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.save = False
             self.close()
-
 
 def secure_delete_file(filename, passes=9):
     try:
@@ -348,7 +377,10 @@ def start_magic_memory_mark_editor():
     editor.show()
     app.exec_()
     app.quit()
-    return editor
+    print(editor.save)
+    if editor.save:    
+        return editor
+
 
 
 
@@ -538,22 +570,24 @@ def edit_n_view_mode(passwd, edit_mode):
                 "Note: You have opened this file in read-only mode. Any attempt to save will not be successful.")
             read_only_warning.exec_()
 
-        editor = MagicMemoryMarkTextEditor()
-        editor.var_to_editor(bytes_data_to_str)
-        editor.show()
+        filetoeditor = MagicMemoryMarkTextEditor()
+        filetoeditor.var_to_editor(bytes_data_to_str)
+        filetoeditor.show()
         app.exec_()
+        app.quit() # !?!?
+        print(filetoeditor.save)
+        if filetoeditor.save:    
+            if edit_mode:
+                dec_note = filetoeditor
+                the_saved_text = dec_note.save_text()
+                last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
+                total_note = f"{the_saved_text} {last_modified_date_string}"
+                enc_note = start_var_data_encryptor("enc", total_note, passwd)
 
-        if edit_mode:
-            dec_note = editor
-            the_saved_text = dec_note.save_text()
-            last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
-            total_note = f"{the_saved_text} {last_modified_date_string}"
-            enc_note = start_var_data_encryptor("enc", total_note, passwd)
-
-            with open(temp_decrypted_file, "w") as file:
-                file.write(enc_note)
-            copy_file(temp_decrypted_file, selected_file)
+                with open(temp_decrypted_file, "w") as file:
+                    file.write(enc_note)
+                copy_file(temp_decrypted_file, selected_file)
 
         secure_delete_file(temp_decrypted_file)
 
