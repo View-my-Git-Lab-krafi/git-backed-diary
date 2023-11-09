@@ -6,6 +6,7 @@ import io
 import sys
 import random
 import hashlib
+import platform
 import threading
 import markdown2
 import subprocess
@@ -774,8 +775,9 @@ def main():
         root = tk.Tk()
         root.title("Menu")
         root.wm_attributes("-type", "splash")  # WM
-        root.wm_attributes("-topmost", 1)  # WM
-
+        if platform.system() == "Linux":
+            print("Great, You are a linux user!")    
+            root.wm_attributes("-topmost", 1)  # WM
         style = ttk.Style() 
         style.theme_use('clam')
         
