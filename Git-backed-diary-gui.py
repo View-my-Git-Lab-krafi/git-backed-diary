@@ -374,7 +374,7 @@ def start_magic_memory_mark_editor():
         app = QApplication(sys.argv) #  Create the QApplication instance
     editor = MagicMemoryMarkTextEditor()
     editor.show()
-    app.exec_()
+    app.exec()
     app.quit()
     print(editor.save)
     if editor.save:    
@@ -530,7 +530,7 @@ def choose_file(md_files):
     choose_root.setLayout(layout)
 
     choose_root.show()
-    app.exec_()
+    app.exec()
     
     print(selected_file)
     return selected_file
@@ -547,7 +547,7 @@ def edit_n_view_mode(passwd, edit_mode):
         message_box.setWindowTitle("Information")
         message_box.setText("No .enc.GitDiarySync files found in the current directory or its subdirectories. Add a Diary page")
         message_box.setIcon(QMessageBox.Information)
-        message_box.exec_()
+        message_box.exec()
         #print("No .enc.GitDiarySync files found in the current directory or its subdirectories.")
         return
 
@@ -567,12 +567,12 @@ def edit_n_view_mode(passwd, edit_mode):
             read_only_warning.setIcon(QMessageBox.Warning)
             read_only_warning.setText(
                 "Note: You have opened this file in read-only mode. Any attempt to save will not be successful.")
-            read_only_warning.exec_()
+            read_only_warning.exec()
 
         filetoeditor = MagicMemoryMarkTextEditor()
         filetoeditor.var_to_editor(bytes_data_to_str)
         filetoeditor.show()
-        app.exec_()
+        app.exec()
         app.quit() # !?!?
         print(filetoeditor.save)
         if filetoeditor.save:    
@@ -653,7 +653,7 @@ def input_passwd(FirstTime):
                 file.write(hash_note)
             msg_box = QMessageBox()
             msg_box.setText("Setup completed. Start the program again.")
-            msg_box.exec_()
+            msg_box.exec()
             sys.exit()
         else:
             pass
@@ -662,7 +662,7 @@ def input_passwd(FirstTime):
     check_button.clicked.connect(on_button_click)
     passwd_entry.returnPressed.connect(on_button_click)
     window.show()
-    app.exec_()
+    app.exec()
 
     passwd = passwd_entry.text()
     return passwd_entry.text()
@@ -699,7 +699,7 @@ def first_time_welcome_screen():
     central_widget.setLayout(layout)
     wel_root.setCentralWidget(central_widget)
     wel_root.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 def close_window(window):
     window.destroy()
@@ -732,7 +732,7 @@ def main():
         success_message.setStandardButtons(QMessageBox.Ok)
         close_timer.timeout.connect(success_message.accept)
         close_timer.start(2000) 
-        success_message.exec_()
+        success_message.exec()
 
     else:
 
@@ -744,7 +744,7 @@ def main():
                             "Please note that you will lose access to your old notes if you set a new password.\n"
                             "However, if you can recall your old correct password, you can regain access to your files.\n"
                             "Tips: If you remove the 'enc.GitDiarySync' and set your old password again, you can access your old content.")
-        error_message.exec_()
+        error_message.exec()
         sys.exit()
     while True:
         secure_delete_file(".tmp")
