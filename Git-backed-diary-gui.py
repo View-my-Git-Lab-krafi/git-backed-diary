@@ -398,7 +398,7 @@ def view_mode_less(passwd, edit_mode):
 
             with open(destination_filename, 'r') as binary_file:
                 binary_data = binary_file.read()
-            decrypt_data = start_var_data_encryptor("dec", binary_data, passwd)
+            decrypt_data = start_var_data_encryptor("Dec_Fernet_PBKDF2_HMAC_SHA512", binary_data, passwd)
             p = subprocess.Popen(["less"], stdin=subprocess.PIPE)
             p.communicate(input=decrypt_data.encode())
 
@@ -450,7 +450,7 @@ def create_entry(passwd):
         os.makedirs(write_path)
 
     entry_file_path = os.path.join(write_path, filename)
-    enc_note = start_var_data_encryptor("enc", join_date_and_note, passwd)
+    enc_note = start_var_data_encryptor("Enc_Fernet_PBKDF2_HMAC_SHA512", join_date_and_note, passwd)
 
     with open(entry_file_path, "w") as file:  # error
         file.write(enc_note)
@@ -601,7 +601,7 @@ def edit_n_view_mode(passwd, edit_mode):
         copy_file(selected_file, temp_decrypted_file)
         with open(temp_decrypted_file, "r") as file:
             bytes_data = file.read()
-        bytes_data_to_str = start_var_data_encryptor("dec", bytes_data, passwd)
+        bytes_data_to_str = start_var_data_encryptor("Dec_Fernet_PBKDF2_HMAC_SHA512", bytes_data, passwd)
         #global app
         if not app:
             app = QApplication(sys.argv)
@@ -626,7 +626,7 @@ def edit_n_view_mode(passwd, edit_mode):
                 last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 last_modified_date_string = f"\n\nLast modified: {last_modified_date}\n"
                 total_note = f"{the_saved_text} {last_modified_date_string}"
-                enc_note = start_var_data_encryptor("enc", total_note, passwd)
+                enc_note = start_var_data_encryptor("Enc_Fernet_PBKDF2_HMAC_SHA512", total_note, passwd)
 
                 with open(temp_decrypted_file, "w") as file:
                     file.write(enc_note)
