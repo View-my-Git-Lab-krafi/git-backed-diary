@@ -3,6 +3,7 @@ make sure you have installed [git(press here)](https://git-scm.com/downloads) an
 
 `pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib`
 
+
 ## Update news
 i was trying to rewrite this project to godot to make it cross platform also good UI
 but looks like godot4 need more impruvment to support python correctly
@@ -63,6 +64,13 @@ Git Backed Diary dances under the enchanting moonlight of the GPL-3.0 License. F
 
 **Are you ready to embark on this journey of memories, security, and creativity? Git Backed Diary welcomes you to a realm where every stroke of your keyboard weaves tales that only you can tell. Let the magic begin. 🌟
 **
+Crypto==1.4.1
+cryptography==37.0.2
+passlib==1.7.4
+bcrypt==4.0.1
+PySide6==6.6.0
+pycryptodome==3.18.0
+markdown2==2.4.9
 
 
 
@@ -71,3 +79,4 @@ For this stable release i will give a venv file
 https://gitlab.com/krafi/git-backed-diary/-/tree/f4a43cc0f091b4b126bf831c29b181c0fa45a525 
 
 https://drive.google.com/file/d/1Jj2-_Qr_jRQY0G8omzUS6AY7n3fbFEUA/view?usp=sharing
+
