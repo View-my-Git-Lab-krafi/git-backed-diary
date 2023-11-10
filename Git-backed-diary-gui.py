@@ -485,19 +485,30 @@ def choose_file(md_files):
     highlighted_dates = []
     dates = []
     for file_path in file_dict.values(): # split date
-        date = file_path.split('/')[-1][:10]
+        if platform.system() == "Windows":
+            date = file_path.split('\\')[-1][:10]
+        else:
+            date = file_path.split('/')[-1][:10]
         dates.append(date)
 
     for file in md_files:
         #list_widget.addItem(file)  # Get with Full path
-        filename = file.split("/")[-1] # filename 
+        
+        if platform.system() == "Windows":
+            filename = file.split("\\")[-1] # filename 
+        else:
+            filename = file.split("/")[-1] # filename 
+
         if file.endswith('.enc.GitDiarySync'):
             filtered_files.append(filename) # ['filename']
             list_widget.addItem(filename)  # Add only the file name (bin)
             file_dict[filename] = file #file is full path
 
             #lets lighlight whatever date found 
-            date = filename.split('/')[-1][:10]  # "2023-11-03"
+            if platform.system() == "Windows":
+                date = filename.split('\\')[-1][:10]
+            else:
+                date = filename.split('/')[-1][:10]  # "2023-11-03"
             year, month, day = map(int, date.split('-'))
             highlighted_dates.append(QDate(year, month, day))
 
@@ -518,14 +529,20 @@ def choose_file(md_files):
         list_widget.clear()
         for file in md_files:
             #list_widget.addItem(file)  # Get with Full path
-            filename = file.split("/")[-1] # filename 
+            if platform.system() == "Windows":
+                filename = file.split("\\")[-1]
+            else:
+                filename = file.split("/")[-1] # filename 
             if filename.endswith('.enc.GitDiarySync') and filename.startswith(filenamestr):
                 filtered_files.append(filename) # ['filename']
                 list_widget.addItem(filename)  # Add only the file name (bin)
                 file_dict[filename] = file #file is full path
                 
                 #lets lighlight whatever date found 
-                date = filename.split('/')[-1][:10]  # "2023-11-03"
+                if platform.system() == "Windows":
+                    date = filename.split('\\')[-1][:10]  # "2023-11-03"
+                else:
+                    date = filename.split('/')[-1][:10]  # "2023-11-03"
                 year, month, day = map(int, date.split('-'))
                 highlighted_dates.append(QDate(year, month, day))
                 
@@ -818,9 +835,10 @@ def main():
 
         root = tk.Tk()
         root.title("Menu")
-        root.wm_attributes("-type", "splash")  # WM
+        
         if platform.system() == "Linux":
-            print("Great, You are a linux user!")    
+            print("Great, You are a linux user!")
+            root.wm_attributes("-type", "splash")  # WM    
             root.wm_attributes("-topmost", 1)  # WM
         style = ttk.Style() 
         style.theme_use('clam')
