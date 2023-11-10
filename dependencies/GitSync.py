@@ -5,25 +5,32 @@ def git_commands():
     if platform.system() == 'Windows':
         batch_script = '''
         @echo off
+        echo adding
         git add *.enc.GitDiarySync
+        echo commit
         git commit -m "Git-backed-diary"
-
+        echo ask
         git config --get credential.helper > nul
-        if %errorlevel% equ 0 (
-            echo Git credentials are already stored.
-        ) else (
-            set /p store_credentials=Do you want to store your Git credentials? (y/n):
-            if "%store_credentials%" == "y" (
-                git config --global credential.helper store
-            )
+        set /p store_credentials=Do you want to store your Git credentials? (y/n):
+        if "%store_credentials%" == "y" (
+            echo stored
+            git config --global credential.helper store
+        )else (
+            echo No response, setting to "n" after 5 seconds...
+            echo If you select 'yes,' Git will not ask for the password again.
+            timeout /t 5 /nobreak > nul
+            set "store_credentials=n"
         )
+
+
+        echo push
         git push
         echo Press any key to continue...
         pause >nul
         '''
         with open("temp_script.bat", "w") as script_file:
             script_file.write(batch_script)
-        subprocess.run(['cmd', '/k', 'temp_script.bat'], shell=True)
+        subprocess.run(['start', 'cmd', '/k', 'temp_script.bat'], shell=True)
     else:
         script_content = '''
         #!/bin/bash
