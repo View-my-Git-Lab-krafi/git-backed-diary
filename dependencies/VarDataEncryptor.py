@@ -69,6 +69,9 @@ def start_var_data_encryptor(worktype, data, passwd):
 
 
 '''
+#  Fernet symmetric encryption with a key derived from a password using PBKDF2HMAC with SHA512.
+#  pip install cryptography
+
 import os
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -80,7 +83,7 @@ def generate_fernet_key():
 
 def generate_key_from_password(password, salt=None):
     if salt is None:
-        salt = os.urandom(99)
+        salt = os.urandom(16)
     kdf = PBKDF2HMAC(
         algorithm=hashes.SHA512(),
         iterations=900000,
@@ -96,11 +99,13 @@ def initialize_fernet(key):
 def encrypt_data(data, key):
     f = initialize_fernet(key)
     encrypted_data = f.encrypt(data.encode())
-    return encrypted_data
+    encrypted_hex_string = ''.join(['{:02x}'.format(byte) for byte in encrypted_data]) 
+    return encrypted_hex_string
 
 def decrypt_data(encrypted_data, key):
+    hex_to_bytes_encrypted = bytes.fromhex(encrypted_data)
     f = initialize_fernet(key)
-    decrypted_data = f.decrypt(encrypted_data)
+    decrypted_data = f.decrypt(hex_to_bytes_encrypted)
     return decrypted_data.decode()
 
 def start_var_data_encryptor(worktype, data, key):
