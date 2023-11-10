@@ -1,3 +1,4 @@
+make sure you have installed [git(press here)](https://git-scm.com/downloads) and python i used [3.11.5](https://www.python.org/downloads/release/python-3115/)
 `pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib`
 
 ## Update news
