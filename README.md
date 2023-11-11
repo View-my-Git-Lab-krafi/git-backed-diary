@@ -11,7 +11,7 @@ https://gitlab.com/krafi/magic-memory-mark.git
 https://github.com/touilleMan/godot-python/issues/396
 
 ## Git Backed Diary: Where Memories and Security Meet
-<p>Welcome to Git Backed Diary, your personal haven for memories and musings. This innovative Python application, adorned with the charming powers of PySide2 and the classic elegance of Tkinter, offers you a captivating diary experience like no other., a simple diary app that uses Git for version control. You can fork the project, add your diary entries, and synchronize them with GitHub or GitLab using this app.
+<p>Welcome to Git Backed Diary, your personal haven for memories and musings. This innovative Python application, adorned with the charming powers of PySide6 and the classic elegance of Tkinter, offers you a captivating diary experience like no other., a simple diary app that uses Git for version control. You can fork the project, add your diary entries, and synchronize them with GitHub or GitLab using this app.
 </p>
 
 ## Getting Started
@@ -64,6 +64,8 @@ Git Backed Diary dances under the enchanting moonlight of the GPL-3.0 License. F
 
 **Are you ready to embark on this journey of memories, security, and creativity? Git Backed Diary welcomes you to a realm where every stroke of your keyboard weaves tales that only you can tell. Let the magic begin. 🌟
 **
+
+```
 Crypto==1.4.1
 cryptography==37.0.2
 passlib==1.7.4
@@ -71,6 +73,8 @@ bcrypt==4.0.1
 PySide6==6.6.0
 pycryptodome==3.18.0
 markdown2==2.4.9
+```
+
 
 
 
