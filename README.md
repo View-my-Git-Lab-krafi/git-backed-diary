@@ -1,3 +1,6 @@
+
+Please note that this project is maintained on GitLab, and you can find the latest version of the code, as well as updates and bug fixes, at [ [https://gitlab.com/krafi/unsplash-wallpaper-changer-for-linux](https://gitlab.com/krafi/unsplash-wallpaper-changer-for-linux)](https://gitlab.com/krafi/git-backed-diary.git) If you encounter any issues while using the application, we encourage you to report them on the GitLab repository so that we can address them as soon as possible.
+
 make sure you have installed [git(press here)](https://git-scm.com/downloads) and python3.7+ i used [3.11.5](https://www.python.org/downloads/release/python-3115/)
 
 
