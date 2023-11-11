@@ -4,7 +4,7 @@ Please note that this project is maintained on GitLab, and you can find the late
 make sure you have installed [git(press here)](https://git-scm.com/downloads) and python3.7+ i used [3.11.5](https://www.python.org/downloads/release/python-3115/)
 
 
-`pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib`
+`pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib cryptography==37.0.2 `
 
 
 ## Update news
