@@ -20,7 +20,7 @@ from functools import partial
 from datetime import datetime
 
 #Crypto 1.4.1
-import crypto
+#import crypto
 #from Crypto.Cipher import AES
 #from Crypto.Util.Padding import pad
 #from Crypto.Random import get_random_bytes
