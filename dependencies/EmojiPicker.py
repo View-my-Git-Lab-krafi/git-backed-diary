@@ -1,12 +1,12 @@
 from functools import partial
 from PySide6 import QtWidgets, QtGui, QtCore
-
-from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
-from PySide6.QtGui import QTextCursor, QFont, QIcon
 from PySide6.QtCore import Qt, QPoint
-
 from .emoji_data import categories
 
+
+
+#from PySide6.QtWidgets import QApplication, QMainWindow, QTextEdit, QVBoxLayout, QWidget, QPushButton
+#from PySide6.QtGui import QTextCursor, QFont, QIcon
 class EmojiPicker(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -42,12 +42,13 @@ class EmojiPicker(QtWidgets.QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             self.dragging = True
+            print(event.pos())
             self.offset = event.pos()
 
     def mouseMoveEvent(self, event):
         if self.dragging:
-            new_pos = self.mapToGlobal(event.pos() - self.offset)
-            self.move(new_pos)
+            delta = event.pos() - self.offset
+            self.move(self.pos() + delta)
 
     def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -76,8 +77,8 @@ class EmojiPicker(QtWidgets.QWidget):
 
         # Position the buttons at the appropriate corners
         emoji_picker_rect = self.rect()
-        button_offset = QtCore.QPoint(-200, 25)
-        button_offsett = QtCore.QPoint(-0, 25)
+        button_offset = QtCore.QPoint(-200, 30)
+        button_offsett = QtCore.QPoint(-0, 30)
         self.resize_left_button.move(emoji_picker_rect.bottomLeft() - button_offsett)
         self.resize_right_button.move(emoji_picker_rect.bottomRight() - button_offsett)
         self.resize_top_button.move(emoji_picker_rect.bottomLeft() - button_offset)

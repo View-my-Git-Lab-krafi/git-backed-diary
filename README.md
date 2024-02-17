@@ -1,11 +1,27 @@
+## For windows : 
+ 
+####  copy paste this link to powershell and check desktop it will take some time
 
-Please note that this project is maintained on GitLab, and you can find the latest version of the code, as well as updates and bug fixes, at [ [https://gitlab.com/krafi/unsplash-wallpaper-changer-for-linux](https://gitlab.com/krafi/unsplash-wallpaper-changer-for-linux)](https://gitlab.com/krafi/git-backed-diary.git) If you encounter any issues while using the application, we encourage you to report them on the GitLab repository so that we can address them as soon as possible.
+```powershell
+iwr -useb https://gitlab.com/krafi/git-backed-diary/-/raw/main/win_setup.ps1 | iex
+```
+close the powershell and open again,
+
+```powershell
+pip3 install  noisereduce --upgrade --force-reinstall
+```
+## this application act more native on linux
+
+## manual setup 
+
+[https://youtu.be/S2wnqc09PfQ](https://youtu.be/S2wnqc09PfQ) manual setup process old version...
 
 make sure you have installed [git(press here)](https://git-scm.com/downloads) and python3.7+ i used [3.11.5](https://www.python.org/downloads/release/python-3115/)
 
 
-`pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib cryptography==37.0.2 `
-
+```bash
+ pip install markdown2 pycryptodome PySide6 crypto bcrypt passlib cryptography==37.0.2 pillow==10.1.0 pyaudio==0.2.14 pydub==0.25.1  torch==2.1.1 noisereduce==3.0.0
+```
 
 ## Update news
 i was trying to rewrite this project to godot to make it cross platform also good UI
@@ -69,21 +85,24 @@ Git Backed Diary dances under the enchanting moonlight of the GPL-3.0 License. F
 **
 
 ```
-Crypto==1.4.1
-cryptography==37.0.2
-passlib==1.7.4
-bcrypt==4.0.1
-PySide6==6.6.0
-pycryptodome==3.18.0
+Crypto==1.4.1,
+cryptography==37.0.2,
+passlib==1.7.4,
+bcrypt==4.0.1,
+PySide6==6.6.0,
+pycryptodome==3.18.0,
 markdown2==2.4.9
+pillow==10.1.0,
+pyaudio==0.2.14,
+pydub==0.25.1,
+noisereduce==3.0.0,
+torch==2.1.1
+```
+
+## Development
+
+If you understand some parts of the stable version code and want to contribute or explore the latest developments, switch to the `development` branch. Please ensure you are comfortable with the stable version before diving into the development branch.
 ```
 
 
-
-
-For this stable release i will give a venv file
-
-https://gitlab.com/krafi/git-backed-diary/-/tree/f4a43cc0f091b4b126bf831c29b181c0fa45a525 
-
-https://drive.google.com/file/d/1Jj2-_Qr_jRQY0G8omzUS6AY7n3fbFEUA/view?usp=sharing
-
+If you are still searching for alternatives, check out 'Notesnook,' 'Trilium Notes,' and 'Simple Note'; they are also open source.

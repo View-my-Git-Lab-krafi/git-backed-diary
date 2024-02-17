@@ -1,9 +1,8 @@
 
-import getpass
 import bcrypt
 from passlib.hash import pbkdf2_sha512
 import secrets
-import getpass
+#import getpass
 
 def create_password_hash(method_choice, passwd):
     

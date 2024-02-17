@@ -1,5 +1,9 @@
-#  pip install cryptography
+
 import os
+import base64
+'''
+#  pip install cryptography
+#import getpass
 #import sys
 #import hashlib 
 #import getpass
@@ -7,9 +11,6 @@ import os
 #from passlib.hash import pbkdf2_sha512
 #import secrets
 #import getpass
-import base64
-#import getpass
-
 def pad(data, block_size):
     padding = block_size - len(data) % block_size
     return data + bytes([padding] * padding)
@@ -99,7 +100,7 @@ def Dec_ASE_CFB_PBKDF2_HMAC_SHA512(encrypted_data, passwd):
     decrypted_text = decryptor.update(cipher_text) + decryptor.finalize()
     return decrypted_text.decode()
 
-
+'''
 ############################################################################
 #  Fernet symmetric encryption with a key derived from a password using PBKDF2HMAC with SHA512.
 
